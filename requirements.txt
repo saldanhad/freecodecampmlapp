@@ -1,0 +1,16 @@
+pip
+pandas==1.4.4
+numpy
+google-api-core
+google-api-python-client
+requests
+deta
+plotly
+python-dotenv
+protobuf
+streamlit-option-menu
+wordcloud
+matplotlib
+sklearn
+gunicorn
+nltk
