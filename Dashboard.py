@@ -193,7 +193,7 @@ my_path = root/'pickle files'
 
 dfold = pickle.load(open(my_path/'video_df.pkl','rb'))
 
-@st.cache(suppress_st_warning=True,allow_output_mutation=True, show_spinner=False)
+
 def get_video_ids(youtube, playlist_id):
     
     video_ids = []
@@ -228,7 +228,7 @@ playlist_id = 'UU8butISFwT-Wl7EV0hUK0BQ'
 video_ids = get_video_ids(youtube, playlist_id)
 
 
-@st.cache(suppress_st_warning=True,allow_output_mutation=True,show_spinner=False)
+
 def get_video_details(youtube, video_ids):
 
     all_video_info = [] # instantiate empty list
@@ -263,7 +263,7 @@ def get_video_details(youtube, video_ids):
 #channel resource contains information about a youtube channel
 #use the list method to gather channel information by specifying the channel id 
 
-@st.cache(suppress_st_warning=True,allow_output_mutation=True,show_spinner=False)
+
 def get_channel_stats(youtube, channel_ids):
     
     all_data = [] #initialize empty list
@@ -331,7 +331,7 @@ with open(my_path/'dfcurr.pkl','wb') as f:
 #whatever is the number of new videos uploaded that is tracked. Similar to what we have done for diff for subscribers.
 #pickle the diff calculated above here
 
-@st.cache(suppress_st_warning=True, allow_output_mutation=True,show_spinner=False)
+
 def check_data():
     if dfold.shape[0] != dfcurr.shape[0]:
 
