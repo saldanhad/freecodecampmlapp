@@ -57,7 +57,7 @@ def footer():
             }
             </style>
             <div class="footer">
-            <p>Built by <a text-align: center;' href="https://github.com/saldanhad" target="blank" style="text-decoration:none;">Deepaks Saldanha</a></p>
+            <p>Built by <a text-align: center;' href="https://github.com/saldanhad" target="blank" style="text-decoration:none;">Deepak Saldanha</a></p>
             </div>
             """
 
