@@ -295,9 +295,8 @@ channel_stats['subscribers'] = channel_stats['subscribers'].apply(pd.to_numeric,
 subsold = pickle.load(open(my_path/'subsold.pkl','rb'))
 subsnew = channel_stats.copy()
 
-
 #update diff of subscribers only when there is a change in values.
-if subsold.subscribers.any() != subsnew.subscribers.any():
+if [subsold.subscribers != subsnew.subscribers]:
     diffsubs = subsnew.subscribers - subsold.subscribers
     with open(my_path/'diffsubs.pkl','wb') as f:
         pickle.dump(diffsubs,f)
