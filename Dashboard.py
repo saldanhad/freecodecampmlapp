@@ -333,7 +333,7 @@ with open(my_path/'dfcurr.pkl','wb') as f:
 
 
 def check_data():
-    if dfold.shape[0] != dfcurr.shape[0]:
+    if dfold != dfcurr:
 
         with open(my_path/'dfdiff.pkl','wb') as f:
             pickle.dump(diff,f)
