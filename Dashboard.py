@@ -62,7 +62,7 @@ def human_format(number):
 
 
 st.header("____Total Engagement____")
-
+st.markdown("updated stats for when a video is added/removed")
 #specify column containers 
 cache = st.empty()
 with cache.container():
@@ -295,8 +295,8 @@ subsnew = channel_stats.copy()
 
 
 #update diff of subscribers only when there is a change in values.
-if subsold.subscribers.any() != subsnew.subscribers.any():
-    diffsubs = subsnew.subscribers[0] - subsold.subscribers[0]
+if subsold.subscribers != subsnew.subscribers:
+    diffsubs = subsnew.subscribers - subsold.subscribers
     with open(my_path/'diffsubs.pkl','wb') as f:
         pickle.dump(diffsubs,f)
     with open(my_path/'subsold.pkl','wb') as f:
@@ -333,7 +333,7 @@ with open(my_path/'dfcurr.pkl','wb') as f:
 
 
 def check_data():
-    if dfold != dfcurr:
+    if dfold.shape[0] != dfcurr.shape[0]:
 
         with open(my_path/'dfdiff.pkl','wb') as f:
             pickle.dump(diff,f)
