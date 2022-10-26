@@ -1,5 +1,4 @@
 import os
-import pickle
 import streamlit as st
 import numpy as np
 import pandas as pd
@@ -55,7 +54,6 @@ subsnew = pickle.load(open(my_path/'subsnew.pkl','rb'))
 
 
 from math import log, floor
-@st.cache(suppress_st_warning=True)
 def human_format(number):
     units = ['', 'K', 'M', 'G', 'T', 'P','E','Z']
     k = 1000.0
@@ -79,7 +77,7 @@ with cache.container():
 
 "___"
 
-@st.cache(suppress_st_warning=True)
+@st.cache(allow_output_mutation=True,suppress_st_warning=True)
 def fig_config(title,size,size2,color,xtitle,ytitle):
     fig.update_layout(
     height=500,
@@ -296,7 +294,9 @@ subsold = pickle.load(open(my_path/'subsold.pkl','rb'))
 subsnew = channel_stats.copy()
 
 #update diff of subscribers only when there is a change in values.
-if [subsold.subscribers != subsnew.subscribers]:
+if [subsold['subscribers'] == subsnew['subscribers']]:
+    pass
+else:
     diffsubs = subsnew.subscribers - subsold.subscribers
     with open(my_path/'diffsubs.pkl','wb') as f:
         pickle.dump(diffsubs,f)
