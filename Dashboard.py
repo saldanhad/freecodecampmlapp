@@ -298,6 +298,7 @@ if [subsold['subscribers'] == subsnew['subscribers']]:
     pass
 else:
     diffsubs = subsnew.subscribers - subsold.subscribers
+    diffsubs = diffsubs.astype(float)
     with open(my_path/'diffsubs.pkl','wb') as f:
         pickle.dump(diffsubs,f)
     with open(my_path/'subsold.pkl','wb') as f:
