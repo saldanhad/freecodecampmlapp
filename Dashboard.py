@@ -298,6 +298,7 @@ subsnew = channel_stats.copy()
 #update diff of subscribers only when there is a change in values.
 if [subsold.subscribers != subsnew.subscribers]:
     diffsubs = subsnew.subscribers - subsold.subscribers
+    diffsubs = diffsubs.astype(float)
     with open(my_path/'diffsubs.pkl','wb') as f:
         pickle.dump(diffsubs,f)
     with open(my_path/'subsold.pkl','wb') as f:
