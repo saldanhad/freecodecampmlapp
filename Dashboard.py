@@ -332,11 +332,9 @@ with open(my_path/'dfcurr.pkl','wb') as f:
 
 video_new = pd.DataFrame()
 video_new = pd.concat([dfold,dfcurr]).drop_duplicates()
-with open(my_path/'video_df.pkl','wb') as f:
-    pickle.dump(video_new,f)
 
 #generate clean_title & clean_description for incoming data
-VERB_CODES = {'VB','VBD','VBG','VBN','VBP','VBZ'}
+VERB_CODES = {'VB':0,'VBD':1,'VBG':2,'VBN':3,'VBP':4,'VBZ':5}
 stop_words = set(stopwords.words('english'))
 lemma = WordNetLemmatizer()
 
@@ -416,7 +414,7 @@ similarity = cosine_similarity(tfv_matrix, tfv_matrix)
 indices = pd.Series(video_df.index, index=video_df['title'])
 videos = video_df['title']
 
-import pickle
+
 with open(my_path/'sim.pkl','wb') as f:
     pickle.dump(similarity,f)
 
@@ -425,6 +423,9 @@ with open(my_path/'indices.pkl','wb') as f:
 
 with open(my_path/'videos.pkl','wb') as f:
     pickle.dump(videos,f)
+        
+with open(my_path/'video_df.pkl','wb') as f:
+    pickle.dump(video_new,f)
 
 #update pickle files for Sparta
 tfv2 = TfidfVectorizer(min_df=2, max_features=None,strip_accents='unicode', analyzer='word', token_pattern=r'\w{1,}', ngram_range=(1,3),stop_words='english')
