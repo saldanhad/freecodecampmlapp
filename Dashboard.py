@@ -332,7 +332,7 @@ with open(my_path/'dfcurr.pkl','wb') as f:
 #whatever is the number of new videos uploaded that is tracked. Similar to what we have done for diff for subscribers.
 #pickle the diff calculated above here
 
-@st.cache(allow_output_mutation=True)
+
 def check_data():
     if dfold.shape[0] != dfcurr.shape[0]:
 
