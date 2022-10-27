@@ -193,7 +193,7 @@ my_path = root/'pickle files'
 
 dfold = pickle.load(open(my_path/'video_df.pkl','rb'))
 
-@st.cache(allow_output_mutation=True)
+
 def get_video_ids(youtube, playlist_id):
     
     video_ids = []
@@ -228,7 +228,6 @@ playlist_id = 'UU8butISFwT-Wl7EV0hUK0BQ'
 video_ids = get_video_ids(youtube, playlist_id)
 
 
-@st.cache(allow_output_mutation=True)
 def get_video_details(youtube, video_ids):
 
     all_video_info = [] # instantiate empty list
@@ -263,7 +262,7 @@ def get_video_details(youtube, video_ids):
 #channel resource contains information about a youtube channel
 #use the list method to gather channel information by specifying the channel id 
 
-@st.cache(allow_output_mutation=True)
+
 def get_channel_stats(youtube, channel_ids):
     
     all_data = [] #initialize empty list
