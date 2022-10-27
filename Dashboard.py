@@ -330,123 +330,122 @@ with open(my_path/'dfcurr.pkl','wb') as f:
 #pickle the diff calculated above here
 
 
-def check_data():
-    if dfold.shape[0] == dfcurr.shape[0]:
-        video_new = pd.DataFrame()
-        video_new = pd.concat([dfold,dfcurr]).drop_duplicates().reset_index(drop=True)
-        with open(my_path/'dfdiff.pkl','wb') as f:
-            pickle.dump(diff,f)
-        with open(my_path/'video_df.pkl','wb') as f:
-            pickle.dump(video_new,f)
-        
-        #generate clean_title & clean_description for incoming data
-        VERB_CODES = {'VB','VBD','VBG','VBN','VBP','VBZ'}
-        stop_words = set(stopwords.words('english'))
-        lemma = WordNetLemmatizer()
 
-        def preprocess_text(text):
-            text = text.lower()
-            temp = [] #initialize dictionary
-            words = nltk.word_tokenize(text)
-            tags = nltk.pos_tag(words)
-            for i, word in enumerate(words):
-                if tags[i][1] in VERB_CODES:
-                    lemmatized = lemma.lemmatize(word,'v')
-                else:
-                    lemmatized = lemma.lemmatize(word)
-                if lemmatized not in stop_words and lemmatized.isalpha():
-                    temp.append(lemmatized)
-            final = ' '.join(temp)
-            return final
+if dfold.shape[0] != dfcurr.shape[0]:
+    video_new = pd.DataFrame()
+    video_new = pd.concat([dfold,dfcurr]).drop_duplicates().reset_index(drop=True)
+    with open(my_path/'dfdiff.pkl','wb') as f:
+        pickle.dump(diff,f)
+    with open(my_path/'video_df.pkl','wb') as f:
+        pickle.dump(video_new,f)
 
-        video_df['clean_description'] = video_df['description'].apply(preprocess_text)
-        video_df['clean_title'] = video_df['title'].apply(preprocess_text)
-        
-        #update all related pickle files
+    #generate clean_title & clean_description for incoming data
+    VERB_CODES = {'VB','VBD','VBG','VBN','VBP','VBZ'}
+    stop_words = set(stopwords.words('english'))
+    lemma = WordNetLemmatizer()
 
-        #top10 viewcount
-        top10 = video_df[['title','video_id','viewCount']]
-        top10 = top10.sort_values(by='viewCount',ascending=False).head(10)
-        with open(my_path/'top10.pkl','wb') as f:
-            pickle.dump(top10,f)
-        
-        #top10 mostliked
-        liked10 = video_df[['title','video_id','likeCount']]
-        liked10 = liked10.sort_values(by='likeCount',ascending=False).head(20)
-        with open(my_path/'like10.pkl','wb') as f:
-            pickle.dump(liked10,f)
+    def preprocess_text(text):
+        text = text.lower()
+        temp = [] #initialize dictionary
+        words = nltk.word_tokenize(text)
+        tags = nltk.pos_tag(words)
+        for i, word in enumerate(words):
+            if tags[i][1] in VERB_CODES:
+                lemmatized = lemma.lemmatize(word,'v')
+            else:
+                lemmatized = lemma.lemmatize(word)
+            if lemmatized not in stop_words and lemmatized.isalpha():
+                temp.append(lemmatized)
+        final = ' '.join(temp)
+        return final
 
-        #update keyword search
-        video_df['key1']=video_df['clean_title'].str.split().str[0]
-        video_df['key2']=video_df['clean_title'].str.split().str[1]
-        video_df['key3']=video_df['clean_title'].str.split().str[2]
-        keyword= video_df[['title','url','key1','key2','key3']]
+    video_df['clean_description'] = video_df['description'].apply(preprocess_text)
+    video_df['clean_title'] = video_df['title'].apply(preprocess_text)
 
-        with open(my_path/'keyword.pkl', 'wb') as f:
-            pickle.dump(keyword,f)
+    #update all related pickle files
 
-        #most viewed certification courses
-        cloud = video_df.loc[(video_df[['key1','key2','key3']].isin(['aws','certification','associate','practitioner','azure','google'])).any(axis=1)]
-        c = cloud.sort_values(by='viewCount',ascending=False).head(10)
-        with open(my_path/'cert10.pkl','wb') as f:
-            pickle.dump(c,f)
-        
-        #wordcloud
-        all_words = list([a for b in video_df['title'].to_list() for a in b])
-        all_words_str = ''.join(all_words)
-        with open(my_path/'wordcloud.pkl','wb') as f:
-            pickle.dump(all_words_str,f)
-        
-        #publishedDayName
-        day = pd.DataFrame(video_df['publishedDayName'].value_counts())
-        weekdays =['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']
-        day = day.reindex(weekdays)
-        ax = day.reset_index().plot.bar(x='index',y='publishedDayName',rot=90)
-        with open(my_path/'day.pkl','wb') as f:
-            pickle.dump(day,f)
-        
-        #videocounts of repeated topics
-        video_df['clean_title'].value_counts()
-        count = video_df['clean_title'].value_counts()
-        count = count.loc[count > 1]
-        with open(my_path/'countvideos.pkl','wb') as f:
-            pickle.dump(count,f)
+    #top10 viewcount
+    top10 = video_df[['title','video_id','viewCount']]
+    top10 = top10.sort_values(by='viewCount',ascending=False).head(10)
+    with open(my_path/'top10.pkl','wb') as f:
+        pickle.dump(top10,f)
 
-        #Update pickle files for Troy
-        tfv = TfidfVectorizer()
-        
-        tfv_matrix = tfv.fit_transform(video_df['clean_description'])
-        similarity = cosine_similarity(tfv_matrix, tfv_matrix)
-        indices = pd.Series(video_df.index, index=video_df['title'])
-        videos = video_df['title']
+    #top10 mostliked
+    liked10 = video_df[['title','video_id','likeCount']]
+    liked10 = liked10.sort_values(by='likeCount',ascending=False).head(20)
+    with open(my_path/'like10.pkl','wb') as f:
+        pickle.dump(liked10,f)
 
-        import pickle
-        with open(my_path/'sim.pkl','wb') as f:
-            pickle.dump(similarity,f)
+    #update keyword search
+    video_df['key1']=video_df['clean_title'].str.split().str[0]
+    video_df['key2']=video_df['clean_title'].str.split().str[1]
+    video_df['key3']=video_df['clean_title'].str.split().str[2]
+    keyword= video_df[['title','url','key1','key2','key3']]
 
-        with open(my_path/'indices.pkl','wb') as f:
-            pickle.dump(indices,f)
+    with open(my_path/'keyword.pkl', 'wb') as f:
+        pickle.dump(keyword,f)
 
-        with open(my_path/'videos.pkl','wb') as f:
-            pickle.dump(videos,f)
+    #most viewed certification courses
+    cloud = video_df.loc[(video_df[['key1','key2','key3']].isin(['aws','certification','associate','practitioner','azure','google'])).any(axis=1)]
+    c = cloud.sort_values(by='viewCount',ascending=False).head(10)
+    with open(my_path/'cert10.pkl','wb') as f:
+        pickle.dump(c,f)
 
-        with open(my_path/'video_df.pkl','wb') as f:
-            pickle.dump(video_df,f)
+    #wordcloud
+    all_words = list([a for b in video_df['title'].to_list() for a in b])
+    all_words_str = ''.join(all_words)
+    with open(my_path/'wordcloud.pkl','wb') as f:
+        pickle.dump(all_words_str,f)
 
-        #update pickle files for Sparta
-        tfv2 = TfidfVectorizer(min_df=2, max_features=None,strip_accents='unicode', analyzer='word', token_pattern=r'\w{1,}', ngram_range=(1,3),stop_words='english')
+    #publishedDayName
+    day = pd.DataFrame(video_df['publishedDayName'].value_counts())
+    weekdays =['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']
+    day = day.reindex(weekdays)
+    ax = day.reset_index().plot.bar(x='index',y='publishedDayName',rot=90)
+    with open(my_path/'day.pkl','wb') as f:
+        pickle.dump(day,f)
 
-        tfv2_matrix = tfv.fit_transform(video_df['title'])
-        similarity2 = cosine_similarity(tfv2_matrix, tfv2_matrix)
+    #videocounts of repeated topics
+    video_df['clean_title'].value_counts()
+    count = video_df['clean_title'].value_counts()
+    count = count.loc[count > 1]
+    with open(my_path/'countvideos.pkl','wb') as f:
+        pickle.dump(count,f)
 
-        indices2 = pd.Series(video_df.index, index=video_df['title']).drop_duplicates()
+    #Update pickle files for Troy
+    tfv = TfidfVectorizer()
 
-        with open(my_path/'sim2.pkl','wb') as f:
-            pickle.dump(similarity2,f)
+    tfv_matrix = tfv.fit_transform(video_df['clean_description'])
+    similarity = cosine_similarity(tfv_matrix, tfv_matrix)
+    indices = pd.Series(video_df.index, index=video_df['title'])
+    videos = video_df['title']
 
-        with open(my_path/'indices2.pkl','wb') as f:
-            pickle.dump(indices2,f)
-    else: pass
+    import pickle
+    with open(my_path/'sim.pkl','wb') as f:
+        pickle.dump(similarity,f)
 
-check_data()
+    with open(my_path/'indices.pkl','wb') as f:
+        pickle.dump(indices,f)
+
+    with open(my_path/'videos.pkl','wb') as f:
+        pickle.dump(videos,f)
+
+    with open(my_path/'video_df.pkl','wb') as f:
+        pickle.dump(video_df,f)
+
+    #update pickle files for Sparta
+    tfv2 = TfidfVectorizer(min_df=2, max_features=None,strip_accents='unicode', analyzer='word', token_pattern=r'\w{1,}', ngram_range=(1,3),stop_words='english')
+
+    tfv2_matrix = tfv.fit_transform(video_df['title'])
+    similarity2 = cosine_similarity(tfv2_matrix, tfv2_matrix)
+
+    indices2 = pd.Series(video_df.index, index=video_df['title']).drop_duplicates()
+
+    with open(my_path/'sim2.pkl','wb') as f:
+        pickle.dump(similarity2,f)
+
+    with open(my_path/'indices2.pkl','wb') as f:
+        pickle.dump(indices2,f)
+
+
 
