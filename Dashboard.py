@@ -192,8 +192,6 @@ from pathlib import Path
 root = Path(".")
 my_path = root/'pickle files'
 
-dfold = pickle.load(open(my_path/'video_df.pkl','rb'))
-
 @st.cache( allow_output_mutation=True)
 def get_video_ids(youtube, playlist_id):
     
@@ -331,9 +329,9 @@ with open(my_path/'dfcurr.pkl','wb') as f:
 #whatever is the number of new videos uploaded that is tracked. Similar to what we have done for diff for subscribers.
 #pickle the diff calculated above here
 
-@st.cache( allow_output_mutation=True)
+
 def check_data():
-    if dfold.shape[0] != dfcurr.shape[0]:
+    if dfold.shape[0] == dfcurr.shape[0]:
         video_new = pd.DataFrame()
         video_new = pd.concat([dfold,dfcurr]).drop_duplicates().reset_index(drop=True)
         with open(my_path/'dfdiff.pkl','wb') as f:
