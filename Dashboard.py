@@ -50,6 +50,7 @@ totsubs = pickle.load(open(my_path/'totsubs.pkl','rb'))
 diffsubs = pickle.load(open(my_path/'diffsubs.pkl','rb'))
 subsold = pickle.load(open(my_path/'subsold.pkl','rb'))
 subsnew = pickle.load(open(my_path/'subsnew.pkl','rb'))
+dfold = pickle.load(open(my_path/'video_df.pkl','rb'))
 
 
 
@@ -67,12 +68,12 @@ st.markdown("updated stats for when a video is added/removed")
 cache = st.empty()
 with cache.container():
     col1,col2,col3,col4,col5 = st.columns(5)
-    col1.metric(label="Total Videos", value=dfcurr.shape[0], delta =dfcurr.shape[0] - dfcurr[diff:].shape[0])
+    col1.metric(label="Total Videos", value=dfcurr.shape[0], delta =dfcurr.shape[0] - dfold.shape[0])
     col2.metric(label="Total Views", value = human_format(dfcurr.viewCount.sum()), 
-                delta =human_format(dfcurr.viewCount.sum() - dfcurr.viewCount[diff:].sum()))
+                delta =human_format(dfcurr.viewCount.sum() - dfold.viewCount.sum()))
     col3.metric(label='Total Subscribers',value = human_format(totsubs), delta = human_format(diffsubs))
-    col4.metric(label="Total Likes", value=human_format(dfcurr.likeCount.sum()), delta =human_format(dfcurr.likeCount.sum() - dfcurr.likeCount[diff:].sum()))
-    col5.metric(label="Total Comments", value =human_format(dfcurr.commentCount.sum()), delta =human_format(dfcurr.commentCount.sum() - dfcurr.commentCount[diff:].sum()))
+    col4.metric(label="Total Likes", value=human_format(dfcurr.likeCount.sum()), delta =human_format(dfcurr.likeCount.sum() - dfold.likeCount.sum()))
+    col5.metric(label="Total Comments", value =human_format(dfcurr.commentCount.sum()), delta =human_format(dfcurr.commentCount.sum() - dfold.commentCount.sum()))
 
 
 "___"
@@ -333,11 +334,11 @@ with open(my_path/'dfcurr.pkl','wb') as f:
 
 def check_data():
     if dfold.shape[0] != dfcurr.shape[0]:
-        diff = dfcurr.shape[0] - dfold.shape[0]
+        video_new = pd.concat([dfold,dfcurr]).drop_duplicates().reset_index(drop=True)
         with open(my_path/'dfdiff.pkl','wb') as f:
             pickle.dump(diff,f)
         with open(my_path/'video_df.pkl','wb') as f:
-            pickle.dump(video_df,f)
+            pickle.dump(video_new,f)
         
         #generate clean_title & clean_description for incoming data
         VERB_CODES = {'VB','VBD','VBG','VBN','VBP','VBZ'}
