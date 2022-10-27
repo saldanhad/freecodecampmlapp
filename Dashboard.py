@@ -323,8 +323,6 @@ video_df['publishedDayName'] = video_df['publishedAt'].apply(lambda x:x.strftime
 #capture new incoming videos and their statistics
 dfcurr = video_df.copy()
 
-diff = dfcurr.shape[0] - dfold.shape[0]
-
 with open(my_path/'dfcurr.pkl','wb') as f:
     pickle.dump(dfcurr,f)
 
@@ -335,7 +333,7 @@ with open(my_path/'dfcurr.pkl','wb') as f:
 
 def check_data():
     if dfold.shape[0] != dfcurr.shape[0]:
-
+        diff = dfcurr.shape[0] - dfold.shape[0]
         with open(my_path/'dfdiff.pkl','wb') as f:
             pickle.dump(diff,f)
         with open(my_path/'video_df.pkl','wb') as f:
