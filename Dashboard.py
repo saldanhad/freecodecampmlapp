@@ -328,7 +328,7 @@ with open(my_path/'dfcurr.pkl','wb') as f:
 #whatever is the number of new videos uploaded that is tracked. Similar to what we have done for diff for subscribers.
 #pickle the diff calculated above here
 
-if dfold.shape[0] == dfcurr.shape[0]:
+if dfold.shape[0] != dfcurr.shape[0]:
     #generate clean_title & clean_description for incoming data
     VERB_CODES = {'VB','VBD','VBG','VBN','VBP','VBZ'}
     stop_words = set(stopwords.words('english'))
