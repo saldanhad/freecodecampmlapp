@@ -334,7 +334,8 @@ video_new = pd.DataFrame()
 video_new = pd.concat([dfold,dfcurr]).drop_duplicates()
 
 #generate clean_title & clean_description for incoming data
-VERB_CODES = {'VB':0,'VBD':1,'VBG':2,'VBN':3,'VBP':4,'VBZ':5}
+VERB_CODES = {'VB','VBD','VBG','VBN','VBP','VBZ'}
+VERB_CODES =tuple(VERB_CODES)
 stop_words = set(stopwords.words('english'))
 lemma = WordNetLemmatizer()
 
