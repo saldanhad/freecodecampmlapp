@@ -192,7 +192,6 @@ from pathlib import Path
 root = Path(".")
 my_path = root/'pickle files'
 
-@st.cache( allow_output_mutation=True)
 def get_video_ids(youtube, playlist_id):
     
     video_ids = []
@@ -226,7 +225,7 @@ def get_video_ids(youtube, playlist_id):
 playlist_id = 'UU8butISFwT-Wl7EV0hUK0BQ'
 video_ids = get_video_ids(youtube, playlist_id)
 
-@st.cache( allow_output_mutation=True)
+
 def get_video_details(youtube, video_ids):
 
     all_video_info = [] # instantiate empty list
@@ -261,7 +260,7 @@ def get_video_details(youtube, video_ids):
 #channel resource contains information about a youtube channel
 #use the list method to gather channel information by specifying the channel id 
 
-@st.cache( allow_output_mutation=True)
+
 def get_channel_stats(youtube, channel_ids):
     
     all_data = [] #initialize empty list
@@ -332,9 +331,7 @@ with open(my_path/'dfcurr.pkl','wb') as f:
 
 
 video_new = pd.DataFrame()
-video_new = pd.concat([dfold,dfcurr]).drop_duplicates().reset_index(drop=True)
-with open(my_path/'dfdiff.pkl','wb') as f:
-    pickle.dump(diff,f)
+video_new = pd.concat([dfold,dfcurr]).drop_duplicates()
 with open(my_path/'video_df.pkl','wb') as f:
     pickle.dump(video_new,f)
 
@@ -428,9 +425,6 @@ with open(my_path/'indices.pkl','wb') as f:
 
 with open(my_path/'videos.pkl','wb') as f:
     pickle.dump(videos,f)
-
-with open(my_path/'video_df.pkl','wb') as f:
-    pickle.dump(video_df,f)
 
 #update pickle files for Sparta
 tfv2 = TfidfVectorizer(min_df=2, max_features=None,strip_accents='unicode', analyzer='word', token_pattern=r'\w{1,}', ngram_range=(1,3),stop_words='english')
