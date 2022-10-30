@@ -50,6 +50,7 @@ totsubs = pickle.load(open(my_path/'totsubs.pkl','rb'))
 diffsubs = pickle.load(open(my_path/'diffsubs.pkl','rb'))
 subsold = pickle.load(open(my_path/'subsold.pkl','rb'))
 subsnew = pickle.load(open(my_path/'subsnew.pkl','rb'))
+dfold = pickle.load(open(my_path/'video_df.pkl','rb'))
 
 
 difviews = pickle.load(open(my_path/'difviews.pkl','rb'))
@@ -65,6 +66,7 @@ def human_format(number):
     return '%.2f%s' % (number / k**magnitude, units[magnitude])
 
 
+
 st.header("____Total Engagement____")
 st.markdown("updated stats for when a video is added/removed")
 #specify column containers 
@@ -72,12 +74,13 @@ cache = st.empty()
 
 with cache.container():
     col1,col2,col3,col4,col5 = st.columns(5)
-    col1.metric(label="Total Videos", value=dfcurr.shape[0], delta =dfcurr.shape[0] - dfcurr[diff:].shape[0])
+    col1.metric(label="Total Videos", value=dfcurr.shape[0], delta =dfcurr.shape[0] - dfold[diff:].shape[0])
     col2.metric(label="Total Views", value = human_format(dfcurr.viewCount.sum()), 
-                delta =human_format(diflikes))
+                delta =human_format(dfcurr.viewCount.sum() - dfcurr.viewCount[diff:].sum()))
     col3.metric(label='Total Subscribers',value = human_format(totsubs), delta = human_format(diffsubs))
-    col4.metric(label="Total Likes", value=human_format(dfcurr.likeCount.sum()), delta =human_format(diflikes))
-    col5.metric(label="Total Comments", value =human_format(dfcurr.commentCount.sum()), delta =human_format(difcomments))
+    col4.metric(label="Total Likes", value=human_format(dfcurr.likeCount.sum()), delta =human_format(dfcurr.likeCount.sum() - dfcurr.likeCount[diff:].sum()))
+    col5.metric(label="Total Comments", value =human_format(dfcurr.commentCount.sum()), delta =human_format(dfcurr.commentCount.sum() - dfcurr.commentCount[diff:].sum()))
+
 
 "___"
 
@@ -195,9 +198,6 @@ from pathlib import Path
 root = Path(".")
 my_path = root/'pickle files'
 
-dfold = pickle.load(open(my_path/'video_df.pkl','rb'))
-
-@st.cache(allow_output_mutation=True)
 def get_video_ids(youtube, playlist_id):
     
     video_ids = []
@@ -232,7 +232,6 @@ playlist_id = 'UU8butISFwT-Wl7EV0hUK0BQ'
 video_ids = get_video_ids(youtube, playlist_id)
 
 
-@st.cache(allow_output_mutation=True)
 def get_video_details(youtube, video_ids):
 
     all_video_info = [] # instantiate empty list
@@ -267,7 +266,7 @@ def get_video_details(youtube, video_ids):
 #channel resource contains information about a youtube channel
 #use the list method to gather channel information by specifying the channel id 
 
-@st.cache(allow_output_mutation=True)
+
 def get_channel_stats(youtube, channel_ids):
     
     all_data = [] #initialize empty list
@@ -328,8 +327,6 @@ video_df['publishedDayName'] = video_df['publishedAt'].apply(lambda x:x.strftime
 #capture new incoming videos and their statistics
 dfcurr = video_df.copy()
 
-diff = dfcurr.shape[0] - dfold.shape[0]
-
 with open(my_path/'dfcurr.pkl','wb') as f:
     pickle.dump(dfcurr,f)
 
@@ -337,26 +334,17 @@ with open(my_path/'dfcurr.pkl','wb') as f:
 #whatever is the number of new videos uploaded that is tracked. Similar to what we have done for diff for subscribers.
 #pickle the diff calculated above here
 
-@st.cache(allow_output_mutation=True)
+@st.cache(suppress_st_warning=True)
 def check_data():
     if dfold.shape[0] != dfcurr.shape[0]:
+
         with open(my_path/'dfdiff.pkl','wb') as f:
             pickle.dump(diff,f)
-        difviews = dfcurr.viewCount.sum() - dfold.viewCount.sum()
-        diflikes = dfcurr.likeCount.sum() - dfold.likeCount.sum()
-        difcomments = dfcurr.likeCount.sum() - dfold.likeCount.sum()
-
-        with open(my_path/'difviews.pkl','wb') as f:
-            pickle.dump(difviews,f)
-        with open(my_path/'diflikes.pkl','wb') as f:
-            pickle.dump(diflikes,f)
-        with open(my_path/'difcomments.pkl','wb') as f:
-            pickle.dump(difcomments,f)
-
         with open(my_path/'video_df.pkl','wb') as f:
             pickle.dump(video_df,f)
         
         #generate clean_title & clean_description for incoming data
+        diff = dfcurr.shape[0] - dfold.shape[0]
         VERB_CODES = {'VB','VBD','VBG','VBN','VBP','VBZ'}
         stop_words = set(stopwords.words('english'))
         lemma = WordNetLemmatizer()
@@ -378,7 +366,7 @@ def check_data():
 
         video_df['clean_description'] = video_df['description'].apply(preprocess_text)
         video_df['clean_title'] = video_df['title'].apply(preprocess_text)
-        
+
         #update all related pickle files
 
         #top10 viewcount
@@ -386,7 +374,7 @@ def check_data():
         top10 = top10.sort_values(by='viewCount',ascending=False).head(10)
         with open(my_path/'top10.pkl','wb') as f:
             pickle.dump(top10,f)
-        
+
         #top10 mostliked
         liked10 = video_df[['title','video_id','likeCount']]
         liked10 = liked10.sort_values(by='likeCount',ascending=False).head(20)
@@ -407,13 +395,13 @@ def check_data():
         c = cloud.sort_values(by='viewCount',ascending=False).head(10)
         with open(my_path/'cert10.pkl','wb') as f:
             pickle.dump(c,f)
-        
+
         #wordcloud
         all_words = list([a for b in video_df['title'].to_list() for a in b])
         all_words_str = ''.join(all_words)
         with open(my_path/'wordcloud.pkl','wb') as f:
             pickle.dump(all_words_str,f)
-        
+
         #publishedDayName
         day = pd.DataFrame(video_df['publishedDayName'].value_counts())
         weekdays =['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']
@@ -421,7 +409,7 @@ def check_data():
         ax = day.reset_index().plot.bar(x='index',y='publishedDayName',rot=90)
         with open(my_path/'day.pkl','wb') as f:
             pickle.dump(day,f)
-        
+
         #videocounts of repeated topics
         video_df['clean_title'].value_counts()
         count = video_df['clean_title'].value_counts()
@@ -431,12 +419,13 @@ def check_data():
 
         #Update pickle files for Troy
         tfv = TfidfVectorizer()
-        
+
         tfv_matrix = tfv.fit_transform(video_df['clean_description'])
         similarity = cosine_similarity(tfv_matrix, tfv_matrix)
         indices = pd.Series(video_df.index, index=video_df['title'])
         videos = video_df['title']
 
+        import pickle
         with open(my_path/'sim.pkl','wb') as f:
             pickle.dump(similarity,f)
 
@@ -447,7 +436,7 @@ def check_data():
             pickle.dump(videos,f)
 
         with open(my_path/'video_df.pkl','wb') as f:
-            pickle.dump(video_df,f)
+            pickle.dump(dfcurr,f)
 
         #update pickle files for Sparta
         tfv2 = TfidfVectorizer(min_df=2, max_features=None,strip_accents='unicode', analyzer='word', token_pattern=r'\w{1,}', ngram_range=(1,3),stop_words='english')
@@ -462,7 +451,8 @@ def check_data():
 
         with open(my_path/'indices2.pkl','wb') as f:
             pickle.dump(indices2,f)
-    else: pass
-
+            
 check_data()
+
+
 
