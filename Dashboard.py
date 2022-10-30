@@ -45,12 +45,16 @@ pagestyle.sidebar()
 highest = pickle.load(open(my_path/'top10.pkl','rb')) #top20 most viewed videos
 
 dfcurr = pickle.load(open(my_path/'dfcurr.pkl','rb'))
-diff = pickle.load(open(my_path/'dfdiff.pkl','rb'))
+#diff = pickle.load(open(my_path/'dfdiff.pkl','rb'))
 totsubs = pickle.load(open(my_path/'totsubs.pkl','rb'))
 diffsubs = pickle.load(open(my_path/'diffsubs.pkl','rb'))
 subsold = pickle.load(open(my_path/'subsold.pkl','rb'))
 subsnew = pickle.load(open(my_path/'subsnew.pkl','rb'))
 
+
+difviews = pickle.load(open(my_path/'difviews.pkl','rb'))
+diflikes = pickle.load(open(my_path/'diflikes.pkl','rb'))
+difcomments = pickle.load(open(my_path/'difcomments.pkl','rb'))
 
 
 from math import log, floor
@@ -65,15 +69,15 @@ st.header("____Total Engagement____")
 st.markdown("updated stats for when a video is added/removed")
 #specify column containers 
 cache = st.empty()
+
 with cache.container():
     col1,col2,col3,col4,col5 = st.columns(5)
     col1.metric(label="Total Videos", value=dfcurr.shape[0], delta =dfcurr.shape[0] - dfcurr[diff:].shape[0])
     col2.metric(label="Total Views", value = human_format(dfcurr.viewCount.sum()), 
-                delta =human_format(dfcurr.viewCount.sum() - dfcurr.viewCount[diff:].sum()))
+                delta =human_format(diflikes))
     col3.metric(label='Total Subscribers',value = human_format(totsubs), delta = human_format(diffsubs))
-    col4.metric(label="Total Likes", value=human_format(dfcurr.likeCount.sum()), delta =human_format(dfcurr.likeCount.sum() - dfcurr.likeCount[diff:].sum()))
-    col5.metric(label="Total Comments", value =human_format(dfcurr.commentCount.sum()), delta =human_format(dfcurr.commentCount.sum() - dfcurr.commentCount[diff:].sum()))
-
+    col4.metric(label="Total Likes", value=human_format(dfcurr.likeCount.sum()), delta =human_format(diflikes))
+    col5.metric(label="Total Comments", value =human_format(dfcurr.commentCount.sum()), delta =human_format(difcomments))
 
 "___"
 
@@ -336,9 +340,19 @@ with open(my_path/'dfcurr.pkl','wb') as f:
 @st.cache(allow_output_mutation=True)
 def check_data():
     if dfold.shape[0] != dfcurr.shape[0]:
-
         with open(my_path/'dfdiff.pkl','wb') as f:
             pickle.dump(diff,f)
+        difviews = dfcurr.viewCount.sum() - dfold.viewCount.sum()
+        diflikes = dfcurr.likeCount.sum() - dfold.likeCount.sum()
+        difcomments = dfcurr.likeCount.sum() - dfold.likeCount.sum()
+
+        with open(my_path/'difviews.pkl','wb') as f:
+            pickle.dump(difviews,f)
+        with open(my_path/'diflikes.pkl','wb') as f:
+            pickle.dump(diflikes,f)
+        with open(my_path/'difcomments.pkl','wb') as f:
+            pickle.dump(difcomments,f)
+
         with open(my_path/'video_df.pkl','wb') as f:
             pickle.dump(video_df,f)
         
@@ -423,7 +437,6 @@ def check_data():
         indices = pd.Series(video_df.index, index=video_df['title'])
         videos = video_df['title']
 
-        import pickle
         with open(my_path/'sim.pkl','wb') as f:
             pickle.dump(similarity,f)
 
