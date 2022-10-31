@@ -53,7 +53,7 @@ subsnew = pickle.load(open(my_path/'subsnew.pkl','rb'))
 dfold = pickle.load(open(my_path/'video_df.pkl','rb'))
 
 
-difviews = pickle.load(open(my_path/'difviews.pkl','rb'))
+#views = pickle.load(open(my_path/'difviews.pkl','rb'))
 diflikes = pickle.load(open(my_path/'diflikes.pkl','rb'))
 difcomments = pickle.load(open(my_path/'difcomments.pkl','rb'))
 
@@ -68,7 +68,7 @@ def human_format(number):
 
 
 st.header("____Total Engagement____")
-st.markdown("updated stats for when a video is added/removed")
+st.markdown("stats updated for every new video added/removed")
 #specify column containers 
 cache = st.empty()
 
@@ -76,7 +76,7 @@ with cache.container():
     col1,col2,col3,col4,col5 = st.columns(5)
     col1.metric(label="Total Videos", value=dfcurr.shape[0], delta =dfcurr.shape[0] - dfold[diff:].shape[0])
     col2.metric(label="Total Views", value = human_format(dfcurr.viewCount.sum()), 
-                delta =human_format(difviews))
+                delta =human_format(dfcurr.viewCount.sum() - dfold[diff:].viewCount.sum()))
     col3.metric(label='Total Subscribers',value = human_format(totsubs), delta = human_format(diffsubs))
     col4.metric(label="Total Likes", value=human_format(dfcurr.likeCount.sum()), delta =human_format(diflikes))
     col5.metric(label="Total Comments", value =human_format(dfcurr.commentCount.sum()), delta =human_format(difcomments))
@@ -336,7 +336,9 @@ with open(my_path/'dfcurr.pkl','wb') as f:
 
 @st.cache(suppress_st_warning=True)
 def check_data():
-    if dfold.shape[0] != dfcurr.shape[0]:
+    if dfold.shape[0] == dfcurr.shape[0]:
+        pass
+    else:
         difviews = dfcurr.viewCount.sum() - dfold.viewCount.sum()
         diflikes = dfcurr.likeCount.sum() - dfold.likeCount.sum()
         difcomments = dfcurr.commentCount.sum() - dfold.commentCount.sum()
