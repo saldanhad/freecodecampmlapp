@@ -54,8 +54,8 @@ dfold = pickle.load(open(my_path/'video_df.pkl','rb'))
 
 
 #views = pickle.load(open(my_path/'difviews.pkl','rb'))
-diflikes = pickle.load(open(my_path/'diflikes.pkl','rb'))
-difcomments = pickle.load(open(my_path/'difcomments.pkl','rb'))
+#diflikes = pickle.load(open(my_path/'diflikes.pkl','rb'))
+#difcomments = pickle.load(open(my_path/'difcomments.pkl','rb'))
 
 
 from math import log, floor
@@ -78,8 +78,8 @@ with cache.container():
     col2.metric(label="Total Views", value = human_format(dfcurr.viewCount.sum()), 
                 delta =human_format(dfcurr.viewCount.sum() - dfold[diff:].viewCount.sum()))
     col3.metric(label='Total Subscribers',value = human_format(totsubs), delta = human_format(diffsubs))
-    col4.metric(label="Total Likes", value=human_format(dfcurr.likeCount.sum()), delta =human_format(diflikes))
-    col5.metric(label="Total Comments", value =human_format(dfcurr.commentCount.sum()), delta =human_format(difcomments))
+    col4.metric(label="Total Likes", value=human_format(dfcurr.likeCount.sum()), delta =human_format(dfcurr.likeCount.sum() - dfold[diff:].likeCount.sum()))
+    col5.metric(label="Total Comments", value =human_format(dfcurr.commentCount.sum()), delta =human_format(dfcurr.commentCount.sum() - dfold[diff:].commentCount.sum())
 
 
 "___"
