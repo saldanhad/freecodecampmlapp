@@ -339,11 +339,8 @@ def check_data():
     if dfold.shape[0] == dfcurr.shape[0]:
         pass
     else:
-        difviews = dfcurr.viewCount.sum() - dfold.viewCount.sum()
         diflikes = dfcurr.likeCount.sum() - dfold.likeCount.sum()
         difcomments = dfcurr.commentCount.sum() - dfold.commentCount.sum()
-        with open(my_path/'difviews.pkl','wb') as f:
-            pickle.dump(difviews,f)
         with open(my_path/'diflikes.pkl','wb') as f:
             pickle.dump(diflikes,f)
         with open(my_path/'difcomments.pkl','wb') as f:
