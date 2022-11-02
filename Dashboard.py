@@ -82,8 +82,6 @@ with cache.container():
     col5.metric(label="Total Comments", value =human_format(dfcurr.commentCount.sum()), delta =human_format(dfcurr.commentCount.sum() - dfold[diff:].commentCount.sum())
 
 
-"___"
-
 @st.cache(allow_output_mutation=True,suppress_st_warning=True)
 def fig_config(title,size,size2,color,xtitle,ytitle):
     fig.update_layout(
@@ -104,6 +102,8 @@ def fig_config(title,size,size2,color,xtitle,ytitle):
         size=size2,
     )
 )
+                
+                
 #most viewed videos
 fig = px.bar(highest, x='viewCount', y='title',color=highest.index,text_auto='.2s')
 #fig.update_traces(textinfo='value')
@@ -120,7 +120,7 @@ fig.update_layout(yaxis={'categoryorder':'total ascending'})
 fig.update_coloraxes(showscale=False)
 fig_config('<b>Top 10 most liked videos</b>',16,14,'#000000',"<b>Count</b>",'<b>Video Title</b>')
 st.plotly_chart(fig,use_container_width=True)
-"___"
+"____"
 
 #Most viewed certification courses
 cert = pickle.load(open(my_path/'cert10.pkl','rb'))
