@@ -82,7 +82,7 @@ with cache.container():
     col5.metric(label="Total Comments", value =human_format(dfcurr.commentCount.sum()), delta =human_format(dfcurr.commentCount.sum() - dfold[diff:].commentCount.sum())
 
                 
-"___"
+"____"
 @st.cache(allow_output_mutation=True,suppress_st_warning=True)
 def fig_config(title,size,size2,color,xtitle,ytitle):
     fig.update_layout(
