@@ -83,7 +83,6 @@ with cache.container():
 
                 
 "____"
-@st.cache(allow_output_mutation=True,suppress_st_warning=True)
 def fig_config(title,size,size2,color,xtitle,ytitle):
     fig.update_layout(
     height=500,
