@@ -13,6 +13,7 @@ import pagestyle
 from PIL import Image
 import matplotlib.pyplot as plt
 from wordcloud import WordCloud
+from googleapiclient.discovery import build
 
 
 root = Path(".")
@@ -45,17 +46,16 @@ pagestyle.sidebar()
 highest = pickle.load(open(my_path/'top10.pkl','rb')) #top20 most viewed videos
 
 dfcurr = pickle.load(open(my_path/'dfcurr.pkl','rb'))
-diff = pickle.load(open(my_path/'dfdiff.pkl','rb'))
 totsubs = pickle.load(open(my_path/'totsubs.pkl','rb'))
 diffsubs = pickle.load(open(my_path/'diffsubs.pkl','rb'))
 subsold = pickle.load(open(my_path/'subsold.pkl','rb'))
 subsnew = pickle.load(open(my_path/'subsnew.pkl','rb'))
 dfold = pickle.load(open(my_path/'video_df.pkl','rb'))
+diff = pickle.load(open(my_path/'diff.pkl','rb'))
+diflike = pickle.load(open(my_path/'diflikes.pkl','rb'))
+difcomment = pickle.load(open(my_path/'difcomment.pkl','rb'))
+difview = pickle.load(open(my_path/'difview.pkl','rb'))
 
-
-#views = pickle.load(open(my_path/'difviews.pkl','rb'))
-#diflikes = pickle.load(open(my_path/'diflikes.pkl','rb'))
-#difcomments = pickle.load(open(my_path/'difcomments.pkl','rb'))
 
 
 from math import log, floor
@@ -76,10 +76,10 @@ with cache.container():
     col1,col2,col3,col4,col5 = st.columns(5)
     col1.metric(label="Total Videos", value=dfcurr.shape[0], delta =dfcurr.shape[0] - dfold[diff:].shape[0])
     col2.metric(label="Total Views", value = human_format(dfcurr.viewCount.sum()), 
-                delta =human_format(dfcurr.viewCount.sum() - dfold[diff:].viewCount.sum()))
+                delta =human_format(diflike))
     col3.metric(label='Total Subscribers',value = human_format(totsubs), delta = human_format(diffsubs))
-    col4.metric(label="Total Likes", value=human_format(dfcurr.likeCount.sum()), delta =human_format(dfcurr.likeCount.sum() - dfold[diff:].likeCount.sum()))
-    col5.metric(label="Total Comments", value =human_format(dfcurr.commentCount.sum()), delta =human_format(dfcurr.commentCount.sum() - dfold[diff:].commentCount.sum())
+    col4.metric(label="Total Likes", value=human_format(dfcurr.likeCount.sum()), delta =human_format(diflike))
+    col5.metric(label="Total Comments", value =human_format(dfcurr.commentCount.sum()), delta =human_format(difcomment))
 
                 
 "____"
@@ -163,14 +163,16 @@ st.pyplot(fig)
 
 pagestyle.footer()
 
+
 import os
-from googleapiclient.discovery import build
 import pandas as pd 
 from dateutil import parser
 import json
 import pickle
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
+from googleapiclient.discovery import build
+
 
 #nltk packages
 import nltk
@@ -324,7 +326,6 @@ video_df['publishedAt'] = video_df['publishedAt'].astype(str)
 video_df['publishedAt'] = video_df['publishedAt'].apply(lambda x:parser.parse(x))
 video_df['publishedDayName'] = video_df['publishedAt'].apply(lambda x:x.strftime("%A"))
 
-
 #capture new incoming videos and their statistics
 dfcurr = video_df.copy()
 
@@ -335,25 +336,29 @@ with open(my_path/'dfcurr.pkl','wb') as f:
 #whatever is the number of new videos uploaded that is tracked. Similar to what we have done for diff for subscribers.
 #pickle the diff calculated above here
 
-@st.cache(suppress_st_warning=True)
-def check_data():
-    if dfold.shape[0] == dfcurr.shape[0]:
-        pass
-    else:
-        diflikes = dfcurr.likeCount.sum() - dfold.likeCount.sum()
-        difcomments = dfcurr.commentCount.sum() - dfold.commentCount.sum()
-        with open(my_path/'diflikes.pkl','wb') as f:
-            pickle.dump(diflikes,f)
-        with open(my_path/'difcomments.pkl','wb') as f:
-            pickle.dump(difcomments,f)
+dfold = dfcurr.copy()
 
-        with open(my_path/'dfdiff.pkl','wb') as f:
-            pickle.dump(diff,f)
-        with open(my_path/'video_df.pkl','wb') as f:
-            pickle.dump(video_df,f)
+@st.cache()
+def check_data():
+    import pickle
+    if dfold.shape[0] != dfcurr.shape[0]:
         
         #generate clean_title & clean_description for incoming data
         diff = dfcurr.shape[0] - dfold.shape[0]
+        with open(my_path/'like10.pkl','wb') as f:
+            pickle.load(diff,f)
+        
+        diflikes = dfcurr.likeCount.sum() - dfold.likeCount.sum()
+        difcomment = dfcurr.commentCount.sum() - dfold.commentCount.sum()
+        difview = dfcurr.viewCount.sum() - dfold.viewCount.sum()
+
+        with open(my_path/'diflikes.pkl','wb') as f:
+            pickle.dump(diflikes,f)
+        with open(my_path/'difcomment.pkl', 'wb') as f:
+            pickle.dump(difcomment,f)
+        with open(my_path/'difview.pkl','wb') as f:
+            pickle.dump(difview,f)
+
         VERB_CODES = {'VB','VBD','VBG','VBN','VBP','VBZ'}
         stop_words = set(stopwords.words('english'))
         lemma = WordNetLemmatizer()
@@ -384,20 +389,22 @@ def check_data():
         with open(my_path/'top10.pkl','wb') as f:
             pickle.dump(top10,f)
 
+
         #top10 mostliked
         liked10 = video_df[['title','video_id','likeCount']]
         liked10 = liked10.sort_values(by='likeCount',ascending=False).head(20)
         with open(my_path/'like10.pkl','wb') as f:
             pickle.dump(liked10,f)
+ 
 
         #update keyword search
         video_df['key1']=video_df['clean_title'].str.split().str[0]
         video_df['key2']=video_df['clean_title'].str.split().str[1]
         video_df['key3']=video_df['clean_title'].str.split().str[2]
-        keyword= video_df[['title','url','key1','key2','key3']]
+        keywords= video_df[['title','url','key1','key2','key3']]
 
         with open(my_path/'keyword.pkl', 'wb') as f:
-            pickle.dump(keyword,f)
+            pickle.dump(keywords,f)
 
         #most viewed certification courses
         cloud = video_df.loc[(video_df[['key1','key2','key3']].isin(['aws','certification','associate','practitioner','azure','google'])).any(axis=1)]
@@ -460,8 +467,10 @@ def check_data():
 
         with open(my_path/'indices2.pkl','wb') as f:
             pickle.dump(indices2,f)
-            
+
+
 check_data()
+
 
 
 

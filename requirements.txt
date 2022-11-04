@@ -2,10 +2,10 @@ pip
 pandas==1.4.4
 numpy==1.23.4
 streamlit==1.13.0
-google-api-core==2.10.2
-google-api-python-client==2.65.0
+google-api-core
+google-api-python-client
 requests==2.28.1
-deta==1.1.0
+deta==1.1.0s
 plotly==5.10.0
 python-dotenv==0.21.0
 protobuf
@@ -14,4 +14,4 @@ wordcloud==1.8.2.2
 matplotlib==3.6.1
 sklearn
 gunicorn==20.1.0
-nltk==3.7
+nltk
