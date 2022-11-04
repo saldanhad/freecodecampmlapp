@@ -133,7 +133,7 @@ st.plotly_chart(fig,use_container_width=True)
 "____"
 #dayoftheweek uploads
 day = pickle.load(open(my_path/'day.pkl','rb'))
-fig = px.bar(day, y='publishedDayName',color=day.index,text_auto='.2s')
+fig = px.bar(day, y='publishedDayName',color=day.index,text_auto='.2ss')
 fig.update_coloraxes(showscale=False)
 fig.update_layout(showlegend=False)
 fig_config('<b>Day with most videos uploaded</b>',16,14,'#000000',"<b>Day of the Week</b>",'<b>No.of Videos</b>')
@@ -420,8 +420,6 @@ def check_data():
         #publishedDayName
         day = pd.DataFrame(video_df['publishedDayName'].value_counts())
         weekdays =['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']
-        day = day.reindex(weekdays)
-        ax = day.reset_index().plot.bar(x='index',y='publishedDayName',rot=90)
         with open(my_path/'day.pkl','wb') as f:
             pickle.dump(day,f)
 
