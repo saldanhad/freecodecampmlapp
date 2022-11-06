@@ -15,14 +15,14 @@ import matplotlib.pyplot as plt
 from wordcloud import WordCloud
 from googleapiclient.discovery import build
 
-
-root = Path(".")
-my_path = root/'pickle files'
-
-
-
-
-#https://www.webfx.com/tools/emoji-cheat-sheet/
+import os
+import pandas as pd 
+from dateutil import parser
+import json
+import pickle
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.metrics.pairwise import cosine_similarity
+from googleapiclient.discovery import build
 
 st.set_page_config(page_title="Freecodecamp-YT", page_icon=":bar_chart:", layout="wide")
 pagestyle.top()
@@ -42,7 +42,9 @@ pagestyle.sidebar()
 
 
 
-#st.dataframe(df)
+root = Path(".")
+my_path = root/'pickle files'
+
 highest = pickle.load(open(my_path/'top10.pkl','rb')) #top20 most viewed videos
 
 dfcurr = pickle.load(open(my_path/'dfcurr.pkl','rb'))
@@ -51,11 +53,185 @@ diffsubs = pickle.load(open(my_path/'diffsubs.pkl','rb'))
 subsold = pickle.load(open(my_path/'subsold.pkl','rb'))
 subsnew = pickle.load(open(my_path/'subsnew.pkl','rb'))
 dfold = pickle.load(open(my_path/'video_df.pkl','rb'))
-diff = pickle.load(open(my_path/'diff.pkl','rb'))
+diff =   pickle.load(open(my_path/'diff.pkl','rb'))
 diflike = pickle.load(open(my_path/'diflikes.pkl','rb'))
 difcomment = pickle.load(open(my_path/'difcomment.pkl','rb'))
 difview = pickle.load(open(my_path/'difview.pkl','rb'))
 
+#nltk packages
+import nltk
+nltk.download('punkt')
+nltk.download('averaged_perceptron_tagger')
+nltk.download('wordnet')
+from nltk.corpus import stopwords
+nltk.download('stopwords')
+nltk.download('omw-1.4')
+import string
+from nltk.stem import WordNetLemmatizer
+
+from dotenv import load_dotenv
+load_dotenv(".env")
+API_KEY = os.getenv("API_KEY")
+
+
+
+channel_ids = ['UC8butISFwT-Wl7EV0hUK0BQ']
+
+api_service_name = "youtube"
+api_version = "v3"
+
+# Get credentials and create an API client
+youtube = build(api_service_name, api_version, developerKey=API_KEY)
+
+from pathlib import Path
+root = Path(".")
+my_path = root/'pickle files'
+
+@st.cache(allow_output_mutation=True)
+def get_video_ids(youtube, playlist_id):
+    
+    video_ids = []
+    
+    request = youtube.playlistItems().list(
+        part="snippet,contentDetails",
+        playlistId=playlist_id,
+        maxResults = 50
+    )
+    response = request.execute()
+    
+    for item in response['items']:
+        video_ids.append(item['contentDetails']['videoId'])
+        
+    next_page_token = response.get('nextPageToken')
+    while next_page_token is not None:
+        request = youtube.playlistItems().list(
+                    part='contentDetails',
+                    playlistId = playlist_id,
+                    maxResults = 50,
+                    pageToken = next_page_token)
+        response = request.execute()
+
+        for item in response['items']:
+            video_ids.append(item['contentDetails']['videoId'])
+
+        next_page_token = response.get('nextPageToken')
+        
+    return video_ids
+
+playlist_id = 'UU8butISFwT-Wl7EV0hUK0BQ'
+video_ids = get_video_ids(youtube, playlist_id)
+
+@st.cache(allow_output_mutation=True)
+def get_video_details(youtube, video_ids):
+
+    all_video_info = [] # instantiate empty list
+    
+    for i in range(0, len(video_ids), 50):
+        request = youtube.videos().list(
+            part="snippet,contentDetails,statistics",
+            id=','.join(video_ids[i:i+50])
+        )
+        response = request.execute() 
+
+        for video in response['items']:
+            stats_to_keep = {'snippet': ['channelTitle', 'title', 'description', 'tags', 'publishedAt'],
+                             'statistics': ['viewCount', 'likeCount', 'favouriteCount', 'commentCount'],
+                             'contentDetails': ['duration', 'definition', 'caption']
+                            }
+            video_info = {} #instantiate empty dictionary
+            video_info['video_id'] = video['id']
+
+            for k in stats_to_keep.keys():
+                for v in stats_to_keep[k]:
+                    #implement try try except block to retrieve all videos including those without tags
+                    try:  
+                        video_info[v] = video[k][v]
+                    except:
+                        video_info[v] = None
+
+            all_video_info.append(video_info) #append results from video_info dict to all_video_info list
+    
+    return pd.DataFrame(all_video_info) #covert list to dataframe
+
+#channel resource contains information about a youtube channel
+#use the list method to gather channel information by specifying the channel id 
+
+@st.cache(allow_output_mutation=True)
+def get_channel_stats(youtube, channel_ids):
+    
+    all_data = [] #initialize empty list
+    
+    request = youtube.channels().list(
+        part="snippet,contentDetails,statistics",
+        id=','.join(channel_ids)
+    )
+    response = request.execute()
+
+    # loop through items
+    for item in response['items']:
+        data = {'channelName': item['snippet']['title'],
+                'subscribers': item['statistics']['subscriberCount'],
+                'hiddensubscriber':item['statistics']['hiddenSubscriberCount'],
+                'views': item['statistics']['viewCount'],
+                'playlistId': item['contentDetails']['relatedPlaylists']['uploads']
+        }
+        
+        all_data.append(data)
+        
+    return(pd.DataFrame(all_data))
+
+channel_stats = get_channel_stats(youtube, channel_ids)
+channel_stats['subscribers'] = channel_stats['subscribers'].apply(pd.to_numeric, errors = 'coerce')
+
+subsold = pickle.load(open(my_path/'subsold.pkl','rb'))
+subsnew = channel_stats.copy()
+
+#update diff of subscribers only when there is a change in values.
+if [subsold['subscribers'] == subsnew['subscribers']]:
+    pass
+else:
+    diffsubs = subsnew.subscribers - subsold.subscribers
+    diffsubs = diffsubs.astype(float)
+    with open(my_path/'diffsubs.pkl','wb') as f:
+        pickle.dump(diffsubs,f)
+    with open(my_path/'subsold.pkl','wb') as f:
+        pickle.dump(subsnew,f)
+
+totsubs = channel_stats.subscribers
+with open(my_path/'totsubs.pkl','wb') as f:
+    pickle.dump(totsubs,f)
+
+#video_df handle datatypes and create published day name
+video_df = get_video_details(youtube, video_ids)
+#define url
+video_df['url'] = 'https://www.youtube.com/watch?v='+video_df.video_id
+#handle datatypes for columns
+numeric_cols = ['viewCount', 'likeCount', 'favouriteCount', 'commentCount']
+video_df[numeric_cols] = video_df[numeric_cols].apply(pd.to_numeric, errors = 'coerce', axis = 1)
+video_df['publishedAt'] = video_df['publishedAt'].astype(str)
+video_df['publishedAt'] = video_df['publishedAt'].apply(lambda x:parser.parse(x))
+video_df['publishedDayName'] = video_df['publishedAt'].apply(lambda x:x.strftime("%A"))
+
+#capture new incoming videos and their statistics
+dfcurr = video_df.copy()
+
+with open(my_path/'dfcurr.pkl','wb') as f:
+    pickle.dump(dfcurr,f)
+
+
+diflikes = dfcurr.likeCount.sum() - dfold.likeCount.sum()
+difcomment = dfcurr.commentCount.sum() - dfold.commentCount.sum()
+difview = dfcurr.viewCount.sum() - dfold.viewCount.sum()
+with open(my_path/'diflikes.pkl','wb') as f:
+    pickle.dump(diflikes,f)
+with open(my_path/'difcomment.pkl', 'wb') as f:
+    pickle.dump(difcomment,f)
+with open(my_path/'difview.pkl','wb') as f:
+    pickle.dump(difview,f)       
+
+
+#whatever is the number of new videos uploaded that is tracked. Similar to what we have done for diff for subscribers.
+#pickle the diff calculated above here
 
 
 from math import log, floor
@@ -76,7 +252,7 @@ with cache.container():
     col1,col2,col3,col4,col5 = st.columns(5)
     col1.metric(label="Total Videos", value=dfcurr.shape[0], delta =dfcurr.shape[0] - dfold[diff:].shape[0])
     col2.metric(label="Total Views", value = human_format(dfcurr.viewCount.sum()), 
-                delta =human_format(diflike))
+                delta =human_format(difview))
     col3.metric(label='Total Subscribers',value = human_format(totsubs), delta = human_format(diffsubs))
     col4.metric(label="Total Likes", value=human_format(dfcurr.likeCount.sum()), delta =human_format(diflike))
     col5.metric(label="Total Comments", value =human_format(dfcurr.commentCount.sum()), delta =human_format(difcomment))
@@ -163,189 +339,22 @@ st.pyplot(fig)
 pagestyle.footer()
 
 
-import os
-import pandas as pd 
-from dateutil import parser
-import json
-import pickle
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-from googleapiclient.discovery import build
-
-
-#nltk packages
-import nltk
-nltk.download('punkt')
-nltk.download('averaged_perceptron_tagger')
-nltk.download('wordnet')
-from nltk.corpus import stopwords
-nltk.download('stopwords')
-nltk.download('omw-1.4')
-import string
-from nltk.stem import WordNetLemmatizer
-
-from dotenv import load_dotenv
-load_dotenv(".env")
-API_KEY = os.getenv("API_KEY")
-
-channel_ids = ['UC8butISFwT-Wl7EV0hUK0BQ']
-
-api_service_name = "youtube"
-api_version = "v3"
-
-# Get credentials and create an API client
-youtube = build(api_service_name, api_version, developerKey=API_KEY)
-
-from pathlib import Path
-root = Path(".")
-my_path = root/'pickle files'
-
-def get_video_ids(youtube, playlist_id):
-    
-    video_ids = []
-    
-    request = youtube.playlistItems().list(
-        part="snippet,contentDetails",
-        playlistId=playlist_id,
-        maxResults = 50
-    )
-    response = request.execute()
-    
-    for item in response['items']:
-        video_ids.append(item['contentDetails']['videoId'])
-        
-    next_page_token = response.get('nextPageToken')
-    while next_page_token is not None:
-        request = youtube.playlistItems().list(
-                    part='contentDetails',
-                    playlistId = playlist_id,
-                    maxResults = 50,
-                    pageToken = next_page_token)
-        response = request.execute()
-
-        for item in response['items']:
-            video_ids.append(item['contentDetails']['videoId'])
-
-        next_page_token = response.get('nextPageToken')
-        
-    return video_ids
-
-playlist_id = 'UU8butISFwT-Wl7EV0hUK0BQ'
-video_ids = get_video_ids(youtube, playlist_id)
-
-
-def get_video_details(youtube, video_ids):
-
-    all_video_info = [] # instantiate empty list
-    
-    for i in range(0, len(video_ids), 50):
-        request = youtube.videos().list(
-            part="snippet,contentDetails,statistics",
-            id=','.join(video_ids[i:i+50])
-        )
-        response = request.execute() 
-
-        for video in response['items']:
-            stats_to_keep = {'snippet': ['channelTitle', 'title', 'description', 'tags', 'publishedAt'],
-                             'statistics': ['viewCount', 'likeCount', 'favouriteCount', 'commentCount'],
-                             'contentDetails': ['duration', 'definition', 'caption']
-                            }
-            video_info = {} #instantiate empty dictionary
-            video_info['video_id'] = video['id']
-
-            for k in stats_to_keep.keys():
-                for v in stats_to_keep[k]:
-                    #implement try try except block to retrieve all videos including those without tags
-                    try:  
-                        video_info[v] = video[k][v]
-                    except:
-                        video_info[v] = None
-
-            all_video_info.append(video_info) #append results from video_info dict to all_video_info list
-    
-    return pd.DataFrame(all_video_info) #covert list to dataframe
-
-#channel resource contains information about a youtube channel
-#use the list method to gather channel information by specifying the channel id 
-
-
-def get_channel_stats(youtube, channel_ids):
-    
-    all_data = [] #initialize empty list
-    
-    request = youtube.channels().list(
-        part="snippet,contentDetails,statistics",
-        id=','.join(channel_ids)
-    )
-    response = request.execute()
-
-    # loop through items
-    for item in response['items']:
-        data = {'channelName': item['snippet']['title'],
-                'subscribers': item['statistics']['subscriberCount'],
-                'hiddensubscriber':item['statistics']['hiddenSubscriberCount'],
-                'views': item['statistics']['viewCount'],
-                'playlistId': item['contentDetails']['relatedPlaylists']['uploads']
-        }
-        
-        all_data.append(data)
-        
-    return(pd.DataFrame(all_data))
-
-channel_stats = get_channel_stats(youtube, channel_ids)
-channel_stats['subscribers'] = channel_stats['subscribers'].apply(pd.to_numeric, errors = 'coerce')
-
-subsold = pickle.load(open(my_path/'subsold.pkl','rb'))
-subsnew = channel_stats.copy()
-
-#update diff of subscribers only when there is a change in values.
-if [subsold['subscribers'] == subsnew['subscribers']]:
-    pass
-else:
-    diffsubs = subsnew.subscribers - subsold.subscribers
-    diffsubs = diffsubs.astype(float)
-    with open(my_path/'diffsubs.pkl','wb') as f:
-        pickle.dump(diffsubs,f)
-    with open(my_path/'subsold.pkl','wb') as f:
-        pickle.dump(subsnew,f)
-
-totsubs = channel_stats.subscribers
-
-with open(my_path/'totsubs.pkl','wb') as f:
-    pickle.dump(totsubs,f)
-
-#video_df handle datatypes and create published day name
-video_df = get_video_details(youtube, video_ids)
-#define url
-video_df['url'] = 'https://www.youtube.com/watch?v='+video_df.video_id
-#handle datatypes for columns
-numeric_cols = ['viewCount', 'likeCount', 'favouriteCount', 'commentCount']
-video_df[numeric_cols] = video_df[numeric_cols].apply(pd.to_numeric, errors = 'coerce', axis = 1)
-video_df['publishedAt'] = video_df['publishedAt'].astype(str)
-video_df['publishedAt'] = video_df['publishedAt'].apply(lambda x:parser.parse(x))
-video_df['publishedDayName'] = video_df['publishedAt'].apply(lambda x:x.strftime("%A"))
-
-#capture new incoming videos and their statistics
-dfcurr = video_df.copy()
-
-with open(my_path/'dfcurr.pkl','wb') as f:
-    pickle.dump(dfcurr,f)
-
 
 #whatever is the number of new videos uploaded that is tracked. Similar to what we have done for diff for subscribers.
 #pickle the diff calculated above here
 
-dfold = dfcurr.copy()
-
-@st.cache()
+@st.cache(allow_output_mutation=True)
 def check_data():
     import pickle
     if dfold.shape[0] != dfcurr.shape[0]:
         
         #generate clean_title & clean_description for incoming data
         diff = dfcurr.shape[0] - dfold.shape[0]
-        with open(my_path/'like10.pkl','wb') as f:
+        with open(my_path/'diff.pkl','wb') as f:
             pickle.load(diff,f)
+        
+        with open(my_path/'dfold.pkl','wb') as f:
+            pickle.load(dfcurr,f)
         
         diflikes = dfcurr.likeCount.sum() - dfold.likeCount.sum()
         difcomment = dfcurr.commentCount.sum() - dfold.commentCount.sum()
