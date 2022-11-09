@@ -220,17 +220,6 @@ with open(my_path/'dfcurr.pkl','wb') as f:
     pickle.dump(dfcurr,f)
 
 
-diflikes = dfcurr.likeCount.sum() - dfold.likeCount.sum()
-difcomment = dfcurr.commentCount.sum() - dfold.commentCount.sum()
-difview = dfcurr.viewCount.sum() - dfold.viewCount.sum()
-with open(my_path/'diflikes.pkl','wb') as f:
-    pickle.dump(diflikes,f)
-with open(my_path/'difcomment.pkl', 'wb') as f:
-    pickle.dump(difcomment,f)
-with open(my_path/'difview.pkl','wb') as f:
-    pickle.dump(difview,f)       
-
-
 #whatever is the number of new videos uploaded that is tracked. Similar to what we have done for diff for subscribers.
 #pickle the diff calculated above here
 
@@ -352,10 +341,10 @@ def check_data():
         #generate clean_title & clean_description for incoming data
         diff = dfcurr.shape[0] - dfold.shape[0]
         with open(my_path/'diff.pkl','wb') as f:
-            pickle.load(diff,f)
+            pickle.dump(diff,f)
         
         with open(my_path/'dfold.pkl','wb') as f:
-            pickle.load(dfcurr,f)
+            pickle.dump(dfcurr,f)
         
         diflikes = dfcurr.likeCount.sum() - dfold.likeCount.sum()
         difcomment = dfcurr.commentCount.sum() - dfold.commentCount.sum()
