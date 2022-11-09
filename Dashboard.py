@@ -20,6 +20,7 @@ import pandas as pd
 from dateutil import parser
 import json
 import pickle
+import sklearn
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from googleapiclient.discovery import build
