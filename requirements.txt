@@ -12,6 +12,6 @@ protobuf
 streamlit-option-menu==0.3.2
 wordcloud==1.8.2.2
 matplotlib==3.6.1
-sklearn
+skcikit-learn
 gunicorn==20.1.0
 nltk
