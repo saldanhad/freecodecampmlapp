@@ -51,8 +51,6 @@ highest = pickle.load(open(my_path/'top10.pkl','rb')) #top20 most viewed videos
 dfcurr = pickle.load(open(my_path/'dfcurr.pkl','rb'))
 totsubs = pickle.load(open(my_path/'totsubs.pkl','rb'))
 diffsubs = pickle.load(open(my_path/'diffsubs.pkl','rb'))
-subsold = pickle.load(open(my_path/'subsold.pkl','rb'))
-subsnew = pickle.load(open(my_path/'subsnew.pkl','rb'))
 dfold = pickle.load(open(my_path/'video_df.pkl','rb'))
 diff =   pickle.load(open(my_path/'diff.pkl','rb'))
 diflike = pickle.load(open(my_path/'diflikes.pkl','rb'))
@@ -185,13 +183,14 @@ channel_stats = get_channel_stats(youtube, channel_ids)
 channel_stats['subscribers'] = channel_stats['subscribers'].apply(pd.to_numeric, errors = 'coerce')
 
 subsold = pickle.load(open(my_path/'subsold.pkl','rb'))
+subsold.subscribers = subsold.subscribers.apply(pd.to_numeric, errors = 'coerce')
 subsnew = channel_stats.copy()
 
 #update diff of subscribers only when there is a change in values.
-if [subsold['subscribers'] == subsnew['subscribers']]:
+if (subsnew['subscribers'].sum() == subsold['subscribers'].sum()):
     pass
 else:
-    diffsubs = subsnew.subscribers - subsold.subscribers
+    diffsubs = subsnew['subscribers'].sum() - subsold['subscribers'].sum()
     diffsubs = diffsubs.astype(float)
     with open(my_path/'diffsubs.pkl','wb') as f:
         pickle.dump(diffsubs,f)
@@ -240,12 +239,12 @@ cache = st.empty()
 
 with cache.container():
     col1,col2,col3,col4,col5 = st.columns(5)
-    col1.metric(label="Total Videos", value=dfcurr.shape[0], delta =dfcurr.shape[0] - dfold[diff:].shape[0])
-    col2.metric(label="Total Views", value = human_format(dfcurr.viewCount.sum()), 
-                delta =human_format(difview))
-    col3.metric(label='Total Subscribers',value = human_format(totsubs), delta = human_format(diffsubs))
-    col4.metric(label="Total Likes", value=human_format(dfcurr.likeCount.sum()), delta =human_format(diflike))
-    col5.metric(label="Total Comments", value =human_format(dfcurr.commentCount.sum()), delta =human_format(difcomment))
+    col1.metric(label="Total Videos", value=dfcurr.shape[0], delta =dfcurr.shape[0] - dfcurr[diff:].shape[0])
+    col2.metric(label="Total Views", value = (dfcurr.viewCount.sum()), 
+                delta =(difview))
+    col3.metric(label='Total Subscribers',value = totsubs, delta = (diffsubs))
+    col4.metric(label="Total Likes", value=human_format(dfcurr.likeCount.sum()), delta =(diflike))
+    col5.metric(label="Total Comments", value =human_format(dfcurr.commentCount.sum()), delta =(difcomment))
 
                 
 "____"
