@@ -15,15 +15,6 @@ import matplotlib.pyplot as plt
 from wordcloud import WordCloud
 from googleapiclient.discovery import build
 
-import os
-import pandas as pd 
-from dateutil import parser
-import json
-import pickle
-import sklearn
-from sklearn.feature_extraction.text import TfidfVectorizer
-from sklearn.metrics.pairwise import cosine_similarity
-from googleapiclient.discovery import build
 
 st.set_page_config(page_title="Freecodecamp-YT", page_icon=":bar_chart:", layout="wide")
 pagestyle.top()
@@ -33,9 +24,9 @@ st.image(image)
 page_icon = ":bar_chart:"
 st.header("Near Real-time Freecodecamp-YT Channel Analytics Dashboard & Recommender WebApp"+""+page_icon)
 
-
-st.markdown("__Freecodecamp is a non-profit organization helping millions to learn to code for free. This WebApp is built as an additional resource that provides users with overall statistics and recommendations of videos on the freecodecamp youtube channel__")
-st.markdown("__This is a multipage app, please use the side bar to navigate to other pages. This website is best viewed on a laptop/desktop__")
+st.markdown("__Freecodecamp is a non-profit organization helping millions to learn to code for free. This WebApp is built as an additional resource that provides users with overall statistics and recommendations of videos on the freecodecamp youtube channel. \
+This is a multipage app, please use the side bar to navigate to other pages. This website is best viewed on a laptop/desktop__")
+st.write("****Freecodecamp Youtube channel: https://www.youtube.com/c/Freecodecamp****")
 
 
 
