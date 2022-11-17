@@ -171,9 +171,8 @@ def api_call():
     #capture new incoming videos and their statistics
     dfcurr = video_df.copy()
 
-    with open(my_path/'dfcurr.pkl','wb') as f:
-        pickle.dump(dfcurr,f)
     import pickle
+
     if dfold.shape[0] != dfcurr.shape[0]:
         
         #generate clean_title & clean_description for incoming data
@@ -286,7 +285,7 @@ def api_call():
             pickle.dump(videos,f)
 
         with open(my_path/'video_df.pkl','wb') as f:
-            pickle.dump(dfcurr,f)
+            pickle.dump(video_df,f)
 
         #update pickle files for Sparta
         tfv2 = TfidfVectorizer(min_df=2, max_features=None,strip_accents='unicode', analyzer='word', token_pattern=r'\w{1,}', ngram_range=(1,3),stop_words='english')
