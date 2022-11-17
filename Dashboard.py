@@ -39,10 +39,9 @@ my_path = root/'pickle files'
 
 highest = pickle.load(open(my_path/'top10.pkl','rb')) #top20 most viewed videos
 
-dfcurr = pickle.load(open(my_path/'dfcurr.pkl','rb'))
+dfcurr = pickle.load(open(my_path/'video_df.pkl','rb'))
 totsubs = pickle.load(open(my_path/'totsubs.pkl','rb'))
 diffsubs = pickle.load(open(my_path/'diffsubs.pkl','rb'))
-dfold = pickle.load(open(my_path/'video_df.pkl','rb'))
 diff =   pickle.load(open(my_path/'diff.pkl','rb'))
 diflike = pickle.load(open(my_path/'diflikes.pkl','rb'))
 difcomment = pickle.load(open(my_path/'difcomment.pkl','rb'))
@@ -66,9 +65,9 @@ cache = st.empty()
 with cache.container():
     col1,col2,col3,col4,col5 = st.columns(5)
     col1.metric(label="Total Videos", value=dfcurr.shape[0], delta =dfcurr.shape[0] - dfcurr[diff:].shape[0])
-    col2.metric(label="Total Views", value = (dfcurr.viewCount.sum()), 
+    col2.metric(label="Total Views", value = human_format(dfcurr.viewCount.sum()), 
                 delta =(difview))
-    col3.metric(label='Total Subscribers',value = totsubs, delta = (diffsubs))
+    col3.metric(label='Total Subscribers',value = human_format(totsubs), delta = (diffsubs))
     col4.metric(label="Total Likes", value=human_format(dfcurr.likeCount.sum()), delta =(diflike))
     col5.metric(label="Total Comments", value =human_format(dfcurr.commentCount.sum()), delta =(difcomment))
 
