@@ -158,5 +158,6 @@ pagestyle.footer()
 #pickle the diff calculated above here
 
 import realtimedata
-realtimedata.api_call()
+#realtimedata.api_call()
+realtimedata.update_recommendations()
 

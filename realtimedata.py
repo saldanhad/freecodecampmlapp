@@ -169,10 +169,13 @@ def api_call():
     video_df['publishedDayName'] = video_df['publishedAt'].apply(lambda x:x.strftime("%A"))
 
     #capture new incoming videos and their statistics
-    dfcurr = video_df.copy()
+   
+    return video_df
 
+def update_recommendations():
+    dfcurr = api_call()
+    video_df = dfcurr.copy()
     import pickle
-
     if dfold.shape[0] != dfcurr.shape[0]:
         
         #generate clean_title & clean_description for incoming data
@@ -305,3 +308,4 @@ def api_call():
 
 if __name__ == '__main__':
     api_call()
+    update_recommendations()
