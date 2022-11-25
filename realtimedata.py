@@ -20,6 +20,7 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from dateutil import parser
 
+
 load_dotenv(".env")
 API_KEY = os.getenv("API_KEY")
 from pathlib import Path
@@ -273,7 +274,7 @@ def update_recommendations():
         tfv = TfidfVectorizer()
 
         tfv_matrix = tfv.fit_transform(video_df['clean_description'])
-        similarity = cosine_similarity(tfv_matrix, tfv_matrix)
+        similarity = cosine_similarity(tfv_matrix,tfv_matrix)
         indices = pd.Series(video_df.index, index=video_df['title'])
         videos = video_df['title']
 
@@ -293,7 +294,7 @@ def update_recommendations():
         #update pickle files for Sparta
         tfv2 = TfidfVectorizer(min_df=2, max_features=None,strip_accents='unicode', analyzer='word', token_pattern=r'\w{1,}', ngram_range=(1,3),stop_words='english')
 
-        tfv2_matrix = tfv.fit_transform(video_df['title'])
+        tfv2_matrix = tfv.fit_transform(video_df['clean_title'])
         similarity2 = cosine_similarity(tfv2_matrix, tfv2_matrix)
 
         indices2 = pd.Series(video_df.index, index=video_df['title']).drop_duplicates()
