@@ -22,7 +22,7 @@ from dateutil import parser
 
 #light version of sentence_transformers
 from sentence_transformers import SentenceTransformer
-model_name = 'tiny-bert-base-nli-mean-tokens'
+model_name = 'sentence-transformers/paraphrase-TinyBERT-L6-v2'
 model = SentenceTransformer(model_name)
 
 
