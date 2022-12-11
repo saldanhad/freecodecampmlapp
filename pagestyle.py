@@ -99,6 +99,24 @@ def recommender(selected_video,indices, similarity, video_df):
     df = df.style.format({'url':make_clickable}) #make url clickable
     return df
 
+st.cache(suppress_st_warning=True)
+def recommender2(selected_video,indices, similarity, video_df):
+    index = indices[selected_video]
+    sim_scores = list(enumerate(similarity[index]))
+    sim_scores = sorted(sim_scores, key=lambda x:x[1], reverse=True)
+    sim_scores = sim_scores[0:6]
+    vid_indices = [i[0] for i in sim_scores]
+    df=video_df['title'].iloc[vid_indices]
+    df=df.to_frame()
+    df0 = df[:1] # to show row for the selected video itself
+    df = df[1:6] #show top 5 recommendations
+    df = pd.concat([df0,df])
+    df['url']= video_df['url'].iloc[vid_indices]
+    def make_clickable(output):
+        return '<a target="_blank" href="{}">{}</a>'.format(output,output)
+    df = df.style.format({'url':make_clickable}) #make url clickable
+    return df
+
 
 st.cache(suppress_st_warning=True)
 def stratings(db,months,years,ratings,msg):
@@ -131,4 +149,5 @@ if __name__ == '__main__':
     sidebar()
     footer()
     recommender()
+    recommender2()
     stratings()

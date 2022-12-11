@@ -56,7 +56,7 @@ months = [calendar.month_name[datetime.now().month]]
 #predictor function
 
 
-with st.expander("Hybrid Recommendation engine", expanded=True):
+with st.expander("BERT Recommendation engine", expanded=True):
     video_list = videos
     selected_video = st.selectbox(
         "Select a video or enter keywords (pls note: **__the first recommendation will be the selected video itself so as to provide the url link__**):",
@@ -64,7 +64,7 @@ with st.expander("Hybrid Recommendation engine", expanded=True):
 
     if st.button('Show video recommendations',key="4"):
         st.write("Recommended videos :")
-        recommended = pagestyle.recommender(selected_video,indices, similarity,video_df)
+        recommended = pagestyle.recommender2(selected_video,indices, similarity,video_df)
         recommended = recommended.hide(axis="index") #hide dataframe index
         st.write(recommended.to_html(), unsafe_allow_html=True)  
 

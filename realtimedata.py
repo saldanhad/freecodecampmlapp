@@ -19,6 +19,12 @@ import sklearn
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from dateutil import parser
+import re
+
+from sentence_transformers import SentenceTransformer
+model_name = 'bert-base-nli-mean-tokens'
+model = SentenceTransformer(model_name)
+
 
 
 load_dotenv(".env")
@@ -217,8 +223,37 @@ def update_recommendations():
             final = ' '.join(temp)
             return final
 
+        # text preprocessing helper functions
+
+        def clean_text(text):
+            '''Make text lowercase, remove text in square brackets,remove links,remove punctuation
+            and remove words containing numbers.'''
+            text = text.lower()
+            text = re.sub('\[.*?\]', '', text)
+            text = re.sub('https?://\S+|www\.\S+', '', text)
+            text = re.sub('<.*?>+', '', text)
+            text = re.sub('[%s]' % re.escape(string.punctuation), '', text)
+            text = re.sub('\n', '', text)
+            text = re.sub('\w*\d\w*', '', text)
+            return text
+
+
+        def text_preprocessing(text):
+            """
+            Cleaning and parsing the text.
+
+            """
+            tokenizer = nltk.tokenize.RegexpTokenizer(r'\w+')
+            nopunc = clean_text(text)
+            tokenized_text = tokenizer.tokenize(nopunc)
+            #remove_stopwords = [w for w in tokenized_text if w not in stopwords.words('english')]
+            combined_text = ' '.join(tokenized_text)
+            return combined_text
+
         video_df['clean_description'] = video_df['description'].apply(preprocess_text)
         video_df['clean_title'] = video_df['title'].apply(preprocess_text)
+        df =pd.DataFrame()
+        df['BERT_description'] = video_df['description'].apply(str).apply(lambda x: text_preprocessing(x))
 
         #update all related pickle files
 
@@ -270,11 +305,12 @@ def update_recommendations():
         with open(my_path/'countvideos.pkl','wb') as f:
             pickle.dump(count,f)
 
-        #Update pickle files for Troy
-        tfv = TfidfVectorizer()
+        #Update pickle files for Troy (BERT model)
+        list_df = video_df['title'].tolist()
 
-        tfv_matrix = tfv.fit_transform(video_df['clean_description'])
-        similarity = cosine_similarity(tfv_matrix,tfv_matrix)
+        sentence_vecs = model.encode(list_df)
+    
+        similarity = cosine_similarity(sentence_vecs,sentence_vecs)
         indices = pd.Series(video_df.index, index=video_df['title'])
         videos = video_df['title']
 
@@ -294,7 +330,7 @@ def update_recommendations():
         #update pickle files for Sparta
         tfv2 = TfidfVectorizer(min_df=2, max_features=None,strip_accents='unicode', analyzer='word', token_pattern=r'\w{1,}', ngram_range=(1,3),stop_words='english')
 
-        tfv2_matrix = tfv.fit_transform(video_df['clean_title'])
+        tfv2_matrix = tfv2.fit_transform(video_df['clean_title'])
         similarity2 = cosine_similarity(tfv2_matrix, tfv2_matrix)
 
         indices2 = pd.Series(video_df.index, index=video_df['title']).drop_duplicates()

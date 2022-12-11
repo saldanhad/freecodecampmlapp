@@ -29,7 +29,7 @@ with st.expander("Search All videos on the freecodecamp channel", expanded=True)
         def make_clickable(val):
             return '<a target="_blank" href="{}">{}</a>'.format(val,val)
         videos = videos.style.format({'url':make_clickable})
-        videos = videos.hide_index()
+        videos = videos.hide(axis='index')
         st.write(videos.to_html(), unsafe_allow_html=True)
 
 
