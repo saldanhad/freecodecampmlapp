@@ -15,3 +15,5 @@ matplotlib==3.6.1
 scikit-learn
 gunicorn==20.1.0
 nltk
+transformers
+sentence-transformers
