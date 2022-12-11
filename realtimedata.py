@@ -20,9 +20,9 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from dateutil import parser
 
-
+#light version of sentence_transformers
 from sentence_transformers import SentenceTransformer
-model_name = 'bert-base-nli-mean-tokens'
+model_name = 'tiny-bert-base-nli-mean-tokens'
 model = SentenceTransformer(model_name)
 
 
