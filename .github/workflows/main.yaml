@@ -5,6 +5,7 @@ name: Deploy to heroku
 on:
   push:
     branches: [master]
+    paths-ignore: README.md
 
 # Your workflows jobs.
 jobs:
