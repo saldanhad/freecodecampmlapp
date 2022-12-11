@@ -19,7 +19,7 @@ import sklearn
 from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from dateutil import parser
-import re
+
 
 from sentence_transformers import SentenceTransformer
 model_name = 'bert-base-nli-mean-tokens'
@@ -238,22 +238,6 @@ def update_recommendations():
             return text
 
 
-        def text_preprocessing(text):
-            """
-            Cleaning and parsing the text.
-
-            """
-            tokenizer = nltk.tokenize.RegexpTokenizer(r'\w+')
-            nopunc = clean_text(text)
-            tokenized_text = tokenizer.tokenize(nopunc)
-            #remove_stopwords = [w for w in tokenized_text if w not in stopwords.words('english')]
-            combined_text = ' '.join(tokenized_text)
-            return combined_text
-
-        video_df['clean_description'] = video_df['description'].apply(preprocess_text)
-        video_df['clean_title'] = video_df['title'].apply(preprocess_text)
-        df =pd.DataFrame()
-        df['BERT_description'] = video_df['description'].apply(str).apply(lambda x: text_preprocessing(x))
 
         #update all related pickle files
 
