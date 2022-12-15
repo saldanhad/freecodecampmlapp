@@ -224,6 +224,8 @@ def update_recommendations():
             return final
 
         #update all related pickle files
+        video_df['clean_title'] = video_df.title.apply(preprocess_text)
+        video_df['clean_description'] = video_df.description.apply(preprocess_text)
 
         #top10 viewcount
         top10 = video_df[['title','video_id','viewCount']]
