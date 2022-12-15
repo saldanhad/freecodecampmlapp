@@ -11,9 +11,15 @@ git clone https://github.com/saldanhad/freecodecampmlapp
 * Run the code by executing the main.py file using the Python interpreter: streamlit run Dashboard.py
 
 
-### Citations
+### References & Citations
 
-reimers-2019-sentence-bert,
+* Vu, Thu[Thu Vu]. (2022, Jan 22).Youtube API for Python: How to Create a Unique Data Portfolio Project.Youtube.
+https://www.youtube.com/watch?v=D56_Cx36oGY
+
+* Sve[Coding is Fun].(2022,Jun 26).Build A Streamlit Web App From Scratch (incl. NoSQL Database + interactive Sankey chart).Youtube.
+https://www.youtube.com/watch?v=3egaMfE9388
+
+ * reimers-2019-sentence-bert,
     title = "Sentence-BERT: Sentence Embeddings using Siamese BERT-Networks",
     author = "Reimers, Nils and Gurevych, Iryna",
     booktitle = "Proceedings of the 2019 Conference on Empirical Methods in Natural Language Processing",
