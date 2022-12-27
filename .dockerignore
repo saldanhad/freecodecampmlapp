@@ -1,0 +1,4 @@
+aws_build
+heroku_build
+*.github
+*.md
