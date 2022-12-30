@@ -9,7 +9,7 @@
 * Clone the repository by running the following command:
 git clone https://github.com/saldanhad/freecodecampmlapp
 
-* Get your Youtube API key, by creating your project GCP, refer to video tutorial by Thu Vu, next generate two databases for the sparta and troy systems respectively in Deta and get the API Key for the same from the Deta dashboard, refer to video tutorial by Sven, enter these details in a .env file.
+* Get your Youtube API key, by creating your project in your GCP environment, refer to video tutorial by Thu Vu, next generate two databases for the sparta and troy systems respectively in Deta and get the API Key for the same from the Deta dashboard, refer to video tutorial by Sven, enter these details in a .env file.
 
 * Install the required Python packages by running the following command: pip install -r requirements.txt
 
