@@ -1,5 +1,5 @@
 # freecodecamp
-* demo on AWS :  http://35.153.182.174/8501
+* demo on AWS :  http://35.153.182.174:8501
 * demo on Heroku: https://freecodecampwebapp.herokuapp.com/
 
 # Steps to run the files locally
