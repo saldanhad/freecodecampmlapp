@@ -2,14 +2,18 @@
 * demo on AWS :  http://35.153.182.174:8501
 * demo on Heroku: https://freecodecampwebapp.herokuapp.com/
 
+
 # Steps to run the files locally
+
 
 * Clone the repository by running the following command:
 git clone https://github.com/saldanhad/freecodecampmlapp
 
+* Get your Youtube API key, by creating your project GCP, refer to video tutorial by Thu Vu, next generate two databases for the sparta and troy systems respectively in Deta and get the API Key for the same from the Deta dashboard, refer to video tutorial by Sven, enter these details in a .env file.
+
 * Install the required Python packages by running the following command: pip install -r requirements.txt
 
-* Run the code by executing the main.py file using the Python interpreter: streamlit run Dashboard.py
+* Run the code by executing the following file in the Python interpreter: streamlit run Dashboard.py
 
 
 ### References & Citations
@@ -17,7 +21,7 @@ git clone https://github.com/saldanhad/freecodecampmlapp
 * Vu, Thu[Thu Vu]. (2022, Jan 22).Youtube API for Python: How to Create a Unique Data Portfolio Project.Youtube.
 https://www.youtube.com/watch?v=D56_Cx36oGY
 
-* Sve[Coding is Fun].(2022,Jun 26).Build A Streamlit Web App From Scratch (incl. NoSQL Database + interactive Sankey chart).Youtube.
+* Sven[Coding is Fun].(2022,Jun 26).Build A Streamlit Web App From Scratch (incl. NoSQL Database + interactive Sankey chart).Youtube.
 https://www.youtube.com/watch?v=3egaMfE9388
 
  * reimers-2019-sentence-bert,
