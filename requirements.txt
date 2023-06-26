@@ -19,3 +19,4 @@ nltk
 transformers
 sentence-transformers
 psycopg2==2.9.1
+pillow
