@@ -16,7 +16,8 @@ git clone https://github.com/saldanhad/freecodecampmlapp
 
 # Database via Elephant SQL
 * Create tables to track feedback for each of the models, table names - feedback_trackertroy, feedback_trackersparta
-![Image Description](C:\Users\dsald\Documents\freecodecamp\elephantsqlss.jpg)
+  
+![Image Description](https://github.com/saldanhad/freecodecampmlapp/blob/master/elephantsqlss.jpg)
 
 ### References & Citations
 
