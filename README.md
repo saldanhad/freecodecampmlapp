@@ -14,6 +14,9 @@ git clone https://github.com/saldanhad/freecodecampmlapp
 
 * Run the code by executing the following file in the Python interpreter: streamlit run Dashboard.py
 
+# Database via Elephant SQL
+* Create tables to track feedback for each of the models, table names - feedback_trackertroy, feedback_trackersparta
+![Image Description](C:\Users\dsald\Documents\freecodecamp\elephantsqlss.jpg)
 
 ### References & Citations
 
