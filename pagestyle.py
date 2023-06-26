@@ -4,6 +4,7 @@ import streamlit as st
 from streamlit_option_menu import option_menu
 import numpy as np
 import pandas as pd
+import psycopg2
 
 
 #remove space at top of page
@@ -78,6 +79,15 @@ def sidebar():
         """
     st.markdown(sidebar,unsafe_allow_html=True)
 
+
+# ElephantSQL database connections
+from dotenv import load_dotenv
+load_dotenv(".env")
+DATABASE_URL = os.getenv("DATABASE_URL")
+
+def create_connection():
+    conn = psycopg2.connect(DATABASE_URL)
+    return conn
     
 #recommender pipeline 
 st.cache(suppress_st_warning=True)
@@ -118,30 +128,7 @@ def recommender2(selected_video,indices, similarity, video_df):
     return df
 
 
-st.cache(suppress_st_warning=True)
-def stratings(db,months,years,ratings,msg):
-    #insert_period = db.put({"period":period,"ratings":ratings})
-    with st.expander("Recommendation Feedback", expanded=True):
-        st.write("Based on your interaction with the recommender, please provide your ratings between 1-5, where rating 1 is where you believe overall only 1 rating was useful/relevant and 5 as in all 5 ratings where useful and so on. Kindly ignore the first recommendation as that is your selection")
-        col1, col2= st.columns(2)
-        col1.selectbox("Select Month:", months, key="month")
-        col2.selectbox("Select Year:", years, key="year")
-        st.selectbox("Select a rating between 1-5, with 1 being low and 5 being the highest rating:",options=ratings,key='ratings')
 
-        if st.button("Submit", key="3"):
-            #initialize session state for ratings, month, year
-            if 'ratings' not in st.session_state:
-                st.session_state['ratings'] = 0
-            if 'year' not in st.session_state:
-                st.session_state['year'] =0
-            if 'month' not in st.session_state:
-                st.session_state['month'] =0
-            period = str(st.session_state["month"])+"_"+str(st.session_state["year"])
-            ratings = (st.session_state['ratings'])
-            def insert_period(period,ratings):
-                return db.put({"period":period,"ratings":ratings})
-            insert_period(period,ratings)
-            st.success(msg)
         
 
 if __name__ == '__main__':
@@ -150,4 +137,3 @@ if __name__ == '__main__':
     footer()
     recommender()
     recommender2()
-    stratings()
