@@ -16,6 +16,7 @@ from wordcloud import WordCloud
 from googleapiclient.discovery import build
 
 
+if __name__ = "__main__":
 st.set_page_config(page_title="Freecodecamp-YT", page_icon=":bar_chart:", layout="wide")
 pagestyle.top()
 
