@@ -2,51 +2,43 @@ import os
 import streamlit as st
 import numpy as np
 import pandas as pd
-import requests
-import calendar
-from datetime import datetime
-import plotly.express as px
-#call the local directory
 from pathlib import Path
 import pickle
-import pagestyle
 from PIL import Image
 import matplotlib.pyplot as plt
 from wordcloud import WordCloud
-from googleapiclient.discovery import build
+import plotly.express as px
+from concurrent.futures import ThreadPoolExecutor
+from datetime import datetime
+from math import log, floor
 
 
-if __name__ = "__main__":
+
+
 st.set_page_config(page_title="Freecodecamp-YT", page_icon=":bar_chart:", layout="wide")
+# Assuming pagestyle.top() sets the top style of the page
 pagestyle.top()
 
+# Load image and display it
 image = Image.open("logo.jpg")
 st.image(image)
-page_icon = ":bar_chart:"
-st.header("Near Real-time Freecodecamp-YT Channel Analytics Dashboard & Recommender WebApp"+""+page_icon)
-
-st.markdown("__Freecodecamp is a non-profit organization helping millions to learn to code for free. This WebApp is built as an additional resource that provides users with overall statistics and recommendations of videos on the freecodecamp youtube channel. \
-This is a multipage app, please use the side bar to navigate to other pages. This website is best viewed on a laptop/desktop__")
-st.write("****Freecodecamp Youtube channel: https://www.youtube.com/c/Freecodecamp****")
 
 
+@st.cache
+def load_pickle_file(file_path):
+    return pickle.load(open(file_path, 'rb'))
 
-pagestyle.sidebar()
-
-
-
-root = Path(".")
-my_path = root/'pickle files'
-
-highest = pickle.load(open(my_path/'top10.pkl','rb')) #top20 most viewed videos
-
-dfcurr = pickle.load(open(my_path/'video_df.pkl','rb'))
-totsubs = pickle.load(open(my_path/'totsubs.pkl','rb'))
-diffsubs = pickle.load(open(my_path/'diffsubs.pkl','rb'))
-diff =   pickle.load(open(my_path/'diff.pkl','rb'))
-diflike = pickle.load(open(my_path/'diflikes.pkl','rb'))
-difcomment = pickle.load(open(my_path/'difcomment.pkl','rb'))
-difview = pickle.load(open(my_path/'difview.pkl','rb'))
+# Load pickle files asynchronously
+my_path = Path(".")/'pickle_files'
+with ThreadPoolExecutor() as executor:
+    highest = executor.submit(load_pickle_file, my_path/'top10.pkl')
+    dfcurr = executor.submit(load_pickle_file, my_path/'video_df.pkl')
+    totsubs = executor.submit(load_pickle_file, my_path/'totsubs.pkl')
+    diffsubs = executor.submit(load_pickle_file, my_path/'diffsubs.pkl')
+    diff = executor.submit(load_pickle_file, my_path/'diff.pkl')
+    diflike = executor.submit(load_pickle_file, my_path/'diflikes.pkl')
+    difcomment = executor.submit(load_pickle_file, my_path/'difcomment.pkl')
+    difview = executor.submit(load_pickle_file, my_path/'difview.pkl')
 
 
 from math import log, floor
@@ -104,6 +96,7 @@ fig_config('<b>Top 10 most viewed videos</b>',16,14,'#000000',"<b>View Count</b>
 st.plotly_chart(fig,use_container_width=True)
 
 "____"
+
 #top10 most liked
 liked = pickle.load(open(my_path/'liked10.pkl','rb'))
 fig = px.bar(liked, x='likeCount', y='title',color=liked.index,text_auto='.2s')
@@ -122,6 +115,7 @@ fig_config('<b>Top 10 most popular certifications</b>',16,14,'#000000',"<b>View 
 st.plotly_chart(fig,use_container_width=True)
 
 "____"
+
 #dayoftheweek uploads
 day = pickle.load(open(my_path/'day.pkl','rb'))
 fig = px.bar(day, y='publishedDayName',color=day.index,text_auto='.2ss')
@@ -139,6 +133,7 @@ fig_config('<b>Technologies  that have more than one video posted</b>',18,14,'#0
 st.plotly_chart(fig,use_container_width=True)
 
 "____"
+
 #word cloud
 st.cache(suppress_st_warning=True)
 def all():
@@ -155,7 +150,7 @@ pagestyle.footer()
 
 
 
-#whatever is the number of new videos uploaded that is tracked. Similar to what we have done for diff for subscribers.
+#the new videos uploaded are tracked. Similar to what we have done for diff for subscribers.
 #pickle the diff calculated above here
 
 import realtimedata
