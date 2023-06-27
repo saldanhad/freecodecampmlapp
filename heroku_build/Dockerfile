@@ -4,5 +4,4 @@ RUN python -m pip install --upgrade pip && \
 COPY . /Dashboard
 WORKDIR /Dashboard
 RUN pip install -r requirements.txt
-ENTRYPOINT ["streamlit", "run"]
-CMD ["Dashboard.py", "--server.port", "$PORT"]
+CMD streamlit run Dashboard.py --server.port $PORT
