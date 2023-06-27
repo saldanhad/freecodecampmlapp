@@ -28,9 +28,7 @@ jobs:
             ${{ runner.os }}-buildx-
 
       - name: Log in to Heroku Container Registry
-        uses: actions-hub/heroku@master
-        with:
-          args: container:login
+        run: heroku container:login
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
 
@@ -44,8 +42,6 @@ jobs:
           cache-to: type=local,dest=/tmp/.buildx-cache
 
       - name: Release the Docker image
-        uses: actions-hub/heroku@master
-        with:
-          args: container:release web --app ${{ secrets.HEROKU_APP_NAME }}
+        run: heroku container:release web --app ${{ secrets.HEROKU_APP_NAME }}
         env:
           HEROKU_API_KEY: ${{ secrets.HEROKU_API_KEY }}
