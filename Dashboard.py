@@ -149,11 +149,3 @@ st.pyplot(fig)
 pagestyle.footer()
 
 
-
-#the new videos uploaded are tracked. Similar to what we have done for diff for subscribers.
-#pickle the diff calculated above here
-
-import realtimedata
-#realtimedata.api_call()
-realtimedata.update_recommendations()
-
