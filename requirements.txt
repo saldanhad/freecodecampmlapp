@@ -1,7 +1,7 @@
 pip
 pandas==1.4.4
 numpy==1.23.4
-streamlit==1.16.0
+streamlit==1.24.0
 protobuf==3.20.0
 google-api-core
 google-api-python-client
