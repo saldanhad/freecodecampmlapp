@@ -153,3 +153,8 @@ st.pyplot(fig)
 
 pagestyle.footer()
 
+##extract new data from youtube api
+import realtimedata
+#realtimedata.api_call()
+realtimedata.update_recommendations()
+
