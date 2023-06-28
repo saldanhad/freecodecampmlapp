@@ -1,5 +1,5 @@
 
-
+logging
 pandas==1.4.4
 numpy==1.23.4
 streamlit==1.16.0
