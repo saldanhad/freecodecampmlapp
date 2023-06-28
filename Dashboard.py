@@ -43,9 +43,9 @@ dfcurr = pickle.load(open(my_path/'video_df.pkl','rb'))
 totsubs = pickle.load(open(my_path/'totsubs.pkl','rb'))
 diffsubs = pickle.load(open(my_path/'diffsubs.pkl','rb'))
 diff =   pickle.load(open(my_path/'diff.pkl','rb'))
-diflike = pickle.load(open(my_path/'diflikes.pkl','rb'))
-difcomment = pickle.load(open(my_path/'difcomment.pkl','rb'))
-difview = pickle.load(open(my_path/'difview.pkl','rb'))
+difflike = pickle.load(open(my_path/'diflikes.pkl','rb'))
+diffcomment = pickle.load(open(my_path/'difcomment.pkl','rb'))
+diffview = pickle.load(open(my_path/'difview.pkl','rb'))
 
 
 from math import log, floor
@@ -62,14 +62,15 @@ st.markdown("stats updated for every new video added/removed")
 #specify column containers 
 cache = st.empty()
 
+#total engagement stats
 with cache.container():
     col1,col2,col3,col4,col5 = st.columns(5)
     col1.metric(label="Total Videos", value=dfcurr.shape[0], delta =dfcurr.shape[0] - dfcurr[diff:].shape[0])
     col2.metric(label="Total Views", value = human_format(dfcurr.viewCount.sum()), 
-                delta =(difview))
+                delta =(diffview))
     col3.metric(label='Total Subscribers',value = human_format(totsubs), delta = (diffsubs))
-    col4.metric(label="Total Likes", value=human_format(dfcurr.likeCount.sum()), delta =(diflike))
-    col5.metric(label="Total Comments", value =human_format(dfcurr.commentCount.sum()), delta =(difcomment))
+    col4.metric(label="Total Likes", value=human_format(dfcurr.likeCount.sum()), delta =(difflike))
+    col5.metric(label="Total Comments", value =human_format(dfcurr.commentCount.sum()), delta =(diffcomment))
 
                 
 "____"
@@ -139,7 +140,7 @@ st.plotly_chart(fig,use_container_width=True)
 
 "____"
 #word cloud
-st.cache(suppress_st_warning=True)
+st.cache_data(suppress_st_warning=True)
 def all():
      allwords = pickle.load(open(my_path/'wordcloud.pkl','rb'))
      wordcloud = WordCloud(width=800, height=300, random_state=1, background_color='black',collocations=False).generate(allwords)
