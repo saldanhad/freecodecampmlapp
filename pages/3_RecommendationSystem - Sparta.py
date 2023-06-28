@@ -67,7 +67,7 @@ selected_video = st.selectbox(
 
 if st.button('Show video recommendations', key="4"):
     st.write("Recommended videos:")
-    recommended = pagestyle.recommender(selected_video, indices, similarity, video_df)
+    recommended = pagestyle.recommender_pipeline(selected_video, indices, similarity, video_df)
     recommended = recommended.hide(axis="index")  # hide dataframe index
     st.write(recommended.to_html(), unsafe_allow_html=True)
   
