@@ -154,7 +154,8 @@ st.pyplot(fig)
 pagestyle.footer()
 
 ##extract new data from youtube api
+import time
+time.sleep(600) # delay execution for 10 minutes.
 import realtimedata
-#realtimedata.api_call()
 realtimedata.update_recommendations()
 
