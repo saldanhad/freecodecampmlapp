@@ -141,7 +141,7 @@ st.plotly_chart(fig,use_container_width=True)
 "____"
 
 #word cloud
-st.cache_data(suppress_st_warning=True)
+st.cache(suppress_st_warning=True)
 def all():
      allwords = pickle.load(open(my_path/'wordcloud.pkl','rb'))
      wordcloud = WordCloud(width=800, height=300, random_state=1, background_color='black',collocations=False).generate(allwords)
