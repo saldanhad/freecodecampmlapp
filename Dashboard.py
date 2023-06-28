@@ -11,7 +11,7 @@ import plotly.express as px
 from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from math import log, floor
-
+import pagestyle
 
 
 
