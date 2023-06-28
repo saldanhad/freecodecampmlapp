@@ -12,12 +12,8 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from math import log, floor
 import pagestyle
-import logging
 
 
-logging.basicConfig(format='%(asctime)s - %(levelname)s - %(message)s', level=logging.ERROR)
-
-try:
 st.set_page_config(page_title="Freecodecamp-YT", page_icon=":bar_chart:", layout="wide")
 # Assuming pagestyle.top() sets the top style of the page
 pagestyle.top()
@@ -156,6 +152,4 @@ plt.axis("off")
 st.pyplot(fig)
 
 pagestyle.footer()
-except Exception as e:
-    logging.error(e)
 
