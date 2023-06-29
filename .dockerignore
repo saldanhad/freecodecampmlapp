@@ -2,3 +2,5 @@
 heroku_build
 *.github
 *.md
+*.pickle files
+*.realtimedata.py
