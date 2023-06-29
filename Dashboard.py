@@ -12,6 +12,26 @@ from concurrent.futures import ThreadPoolExecutor
 from datetime import datetime
 from math import log, floor
 import pagestyle
+from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
+
+
+#connection details from Azure where the pickle files are stored and updated.
+connection_string = os.getenv('AZURE_CONNECTION_STRING')
+container_name = os.getenv('AZURE_CONTAINER_NAME')
+
+blob_service_client = BlobServiceClient.from_connection_string(connection_string)
+
+@st.cache
+def save_to_blob(data, blob_name):
+    serialized_data = pickle.dumps(data)
+    blob_client = blob_service_client.get_blob_client(container_name, blob_name)
+    blob_client.upload_blob(serialized_data, overwrite=True)
+
+def load_from_blob(blob_name):
+    blob_client = blob_service_client.get_blob_client(container_name, blob_name)
+    serialized_data = blob_client.download_blob().readall()
+    data = pickle.loads(serialized_data)
+    return data
 
 
 st.set_page_config(page_title="Freecodecamp-YT", page_icon=":bar_chart:", layout="wide")
@@ -27,22 +47,17 @@ st.image(image)
 def load_pickle_file(file_path):
     return pickle.load(open(file_path, 'rb'))
 
-pagestyle.sidebar()
 
+#load data from blob storage
+highest = load_from_blob('top10.pkl')
+dfcurr = load_from_blob('video_df.pkl')
+totsubs = load_from_blob('totsubs.pkl')
+diffsubs = load_from_blob('diffsubs.pkl')
+diff =   load_from_blob('diff.pkl')
+difflike = load_from_blob('diflikes.pkl')
+diffcomment = load_from_blob('difcomment.pkl')
+diffview = load_from_blob('difview.pkl')
 
-
-root = Path(".")
-my_path = root/'pickle files'
-
-highest = pickle.load(open(my_path/'top10.pkl','rb')) #top20 most viewed videos
-
-dfcurr = pickle.load(open(my_path/'video_df.pkl','rb'))
-totsubs = pickle.load(open(my_path/'totsubs.pkl','rb'))
-diffsubs = pickle.load(open(my_path/'diffsubs.pkl','rb'))
-diff =   pickle.load(open(my_path/'diff.pkl','rb'))
-difflike = pickle.load(open(my_path/'diflikes.pkl','rb'))
-diffcomment = pickle.load(open(my_path/'difcomment.pkl','rb'))
-diffview = pickle.load(open(my_path/'difview.pkl','rb'))
 
 
 from math import log, floor
@@ -153,9 +168,5 @@ st.pyplot(fig)
 
 pagestyle.footer()
 
-##extract new data from youtube api
-import time
-time.sleep(600) # delay execution for 10 minutes.
-import realtimedata
-realtimedata.update_recommendations()
+
 
