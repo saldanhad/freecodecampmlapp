@@ -65,7 +65,7 @@ def human_format(number):
 
 
 st.header("____Total Engagement____")
-st.markdown("stats updated for every new video added/removed")
+st.markdown("The statistics are refreshed daily at 6 AM EST.")
 #specify column containers 
 cache = st.empty()
 
