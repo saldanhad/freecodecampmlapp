@@ -6,7 +6,6 @@ import psycopg2
 import plotly.express as px
 import plotly.graph_objects as go
 import pagestyle
-from dotenv import load_dotenv
 
 st.set_page_config(page_title="Live Feedback", page_icon=":chart_with_upwards_trend:", layout="wide")
 pagestyle.sidebar()
@@ -21,7 +20,6 @@ st.markdown("**__An important way of evaluating recommendation systems is gettin
 st.markdown("**___Troy System___**")
 
 # ElephantSQL PostgreSQL database connection
-load_dotenv(".env")
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 def create_connection():
