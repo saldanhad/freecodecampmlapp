@@ -43,11 +43,6 @@ image = Image.open("logo.jpg")
 st.image(image)
 
 
-@st.cache
-def load_pickle_file(file_path):
-    return pickle.load(open(file_path, 'rb'))
-
-
 #load data from blob storage
 highest = load_from_blob('top10.pkl')
 dfcurr = load_from_blob('video_df.pkl')
@@ -118,7 +113,7 @@ st.plotly_chart(fig,use_container_width=True)
 "____"
 
 #top10 most liked
-liked = pickle.load(open(my_path/'liked10.pkl','rb'))
+liked = load_from_blob('liked10.pkl')
 fig = px.bar(liked, x='likeCount', y='title',color=liked.index,text_auto='.2s')
 fig.update_layout(yaxis={'categoryorder':'total ascending'})
 fig.update_coloraxes(showscale=False)
@@ -127,7 +122,7 @@ st.plotly_chart(fig,use_container_width=True)
 "____"
 
 #Most viewed certification courses
-cert = pickle.load(open(my_path/'cert10.pkl','rb'))
+cert = load_from_blob('cert10.pkl')
 fig = px.bar(cert, x='viewCount', y='title',color=cert.index,text_auto='.2s')
 fig.update_layout(yaxis={'categoryorder':'total ascending'})
 fig.update_coloraxes(showscale=False)
@@ -137,7 +132,7 @@ st.plotly_chart(fig,use_container_width=True)
 "____"
 
 #dayoftheweek uploads
-day = pickle.load(open(my_path/'day.pkl','rb'))
+day = load_from_blob('day.pkl')
 fig = px.bar(day, y='publishedDayName',color=day.index,text_auto='.2ss')
 fig.update_coloraxes(showscale=False)
 fig.update_layout(showlegend=False)
@@ -146,7 +141,7 @@ st.plotly_chart(fig,use_container_width=True)
 
 "____"
 #count of repeating topics
-count = pickle.load(open(my_path/'countvideos.pkl','rb'))
+count =  load_from_blob('countvideos.pkl')
 fig =px.pie(count, values=count.values, names=count.index, title ='Technology categories that have more than one video posted', width=800, height=800)
 fig.update_traces(textinfo='value')
 fig_config('<b>Technologies  that have more than one video posted</b>',18,14,'#000000','<b>Technology categories that have more than one video posted</b>','<b>Technology categories that have more than one video posted</b>')
@@ -157,7 +152,7 @@ st.plotly_chart(fig,use_container_width=True)
 #word cloud
 st.cache(suppress_st_warning=True)
 def all():
-     allwords = pickle.load(open(my_path/'wordcloud.pkl','rb'))
+     allwords = load_from_blob('worldcloud.pkl')
      wordcloud = WordCloud(width=800, height=300, random_state=1, background_color='black',collocations=False).generate(allwords)
      return wordcloud
 wordcloud = all()
