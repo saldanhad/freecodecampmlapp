@@ -58,11 +58,11 @@ page_icon = ":mag_right:"
 st.header("Freecodecamp-YT video recommender"+""+page_icon)
 
 
-#load pickled files
-indices = pickle.load(open(my_path/'indices.pkl','rb'))
-similarity = pickle.load(open(my_path/'sim.pkl','rb'))
-videos = pickle.load(open(my_path/'videos.pkl','rb'))
-video_df = pd.DataFrame(pickle.load(open(my_path/'video_df.pkl','rb')))
+#load pickle files from azure storage
+indices = load_from_blob('indices.pkl')
+similarity = load_from_blob('sim.pkl')
+videos = load_from_blob('videos.pkl')
+video_df = load_from_blob('video_df.pkl')
 
 
 ##settings
