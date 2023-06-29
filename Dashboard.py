@@ -152,7 +152,7 @@ st.plotly_chart(fig,use_container_width=True)
 #word cloud
 st.cache(suppress_st_warning=True)
 def all():
-     allwords = load_from_blob('worldcloud.pkl')
+     allwords = load_from_blob('wordcloud.pkl')
      wordcloud = WordCloud(width=800, height=300, random_state=1, background_color='black',collocations=False).generate(allwords)
      return wordcloud
 wordcloud = all()
