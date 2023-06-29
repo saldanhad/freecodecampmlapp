@@ -5,18 +5,30 @@ from streamlit_option_menu import option_menu
 import numpy as np
 import pandas as pd
 import pagestyle
+from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
 
-#pickle files paths
-from pathlib import Path
-root = Path(".")
-my_path = root/'pickle files'
+connection_string = os.getenv('AZURE_CONNECTION_STRING')
+container_name = os.getenv('AZURE_CONTAINER_NAME')
+
+blob_service_client = BlobServiceClient.from_connection_string(connection_string)
+
+def save_to_blob(data, blob_name):
+    serialized_data = pickle.dumps(data)
+    blob_client = blob_service_client.get_blob_client(container_name, blob_name)
+    blob_client.upload_blob(serialized_data, overwrite=True)
+
+def load_from_blob(blob_name):
+    blob_client = blob_service_client.get_blob_client(container_name, blob_name)
+    serialized_data = blob_client.download_blob().readall()
+    data = pickle.loads(serialized_data)
+    return data
 
 
 #st.set_page_config(page_title="Search Engine", page_icon=":chart_with_upwards_trend:", layout="wide")
 pagestyle.sidebar()
 
 st.title("Search Videos by keyword")
-keyword = pickle.load(open(my_path/'keyword.pkl', 'rb'))
+keyword = load_from_blob('keyword.pkl')
 
 
 with st.expander("Search All videos on the freecodecamp channel", expanded=True):
