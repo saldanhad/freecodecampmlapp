@@ -9,19 +9,29 @@ import calendar
 from datetime import datetime
 import pagestyle
 import psycopg2
+from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
 
+connection_string = os.getenv('AZURE_CONNECTION_STRING')
+container_name = os.getenv('AZURE_CONTAINER_NAME')
+
+blob_service_client = BlobServiceClient.from_connection_string(connection_string)
+
+def save_to_blob(data, blob_name):
+    serialized_data = pickle.dumps(data)
+    blob_client = blob_service_client.get_blob_client(container_name, blob_name)
+    blob_client.upload_blob(serialized_data, overwrite=True)
+
+def load_from_blob(blob_name):
+    blob_client = blob_service_client.get_blob_client(container_name, blob_name)
+    serialized_data = blob_client.download_blob().readall()
+    data = pickle.loads(serialized_data)
+    return data
+    
 #page settings
 st.set_page_config(page_title="Recommendations", page_icon=":mag_right:", layout="wide")
 pagestyle.sidebar()
 
-#pickle files paths
-from pathlib import Path
-root = Path(".")
-my_path = root/'pickle files'
-
 #Elephant sql database connections
-from dotenv import load_dotenv
-load_dotenv(".env")
 DATABASE_URL = os.getenv("DATABASE_URL")
 
 def create_connection():
@@ -43,12 +53,10 @@ st.header("Freecodecamp-YT video recommender"+""+page_icon)
 
 
 
-
-
-indices = pickle.load(open(my_path/'indices2.pkl','rb'))
-similarity = pickle.load(open(my_path/'sim2.pkl','rb'))
-videos = pickle.load(open(my_path/'videos.pkl','rb'))
-video_df = pd.DataFrame(pickle.load(open(my_path/'video_df.pkl','rb')))
+indices = load_from_blob('indices2.pkl')
+similarity = load_from_blob('sim2.pkl')
+videos = load_from_blob('videos.pkl') 
+video_df = load_from_blob('video_df.pkl')
 
 ##settings
 ratings =[1,2,3,4,5]
