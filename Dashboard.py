@@ -81,33 +81,72 @@ with cache.container():
 
                 
 "____"
-def fig_config(title,size,size2,color,xtitle,ytitle):
+def fig_config(title, size, size2, xtitle, ytitle):
     fig.update_layout(
-    height=500,
-    title=dict(
-        text=title,
-        x=0.5,
-        y=0.95,
-        font=dict(
-            family="Arial",
-            size=size,
-            color=color
-        )
-    ),
-    xaxis_title=xtitle,
-    yaxis_title=ytitle,
-    font=dict(
-        size=size2,
+        height=500,
+        title=dict(
+            text=title,
+            x=0.5,
+            y=0.95,
+            font=dict(
+                family="Arial",
+                size=size,
+                color='black' # Use "black" for the color
+            )
+        ),
+        xaxis_title=dict(
+            text=xtitle,
+            font=dict(
+                family="Arial",
+                size=size2,
+                color='black',
+            )
+        ),
+        yaxis_title=dict(
+            text=ytitle,
+            font=dict(
+                family="Arial",
+                size=size2,
+                color='black',
+            )
+        ),
+    ) 
+    fig.update_traces(
+        textfont_size=size2,
+        textfont_color="White",
+        marker= dict(color=px.colors.sequential.Plotly3)
     )
-)
-                
-                
+
+    # Modify the font properties for the second font
+    fig.update_xaxes(tickfont=dict(color='black',family="Arial", size=size2))
+    fig.update_yaxes(tickfont=dict(color='black',family="Arial", size=size2))
+
+def fig_config_pie(title, size, size2, colors):
+    fig.update_layout(
+        height=500,
+        title=dict(
+            text=title,
+            x=0.5,
+            y=0.95,
+            font=dict(
+                family="Arial",
+                size=size,
+                color='black'
+            )
+        )
+    )
+    fig.update_traces(
+        textfont_size=20,
+        textfont_color="white",
+        marker=colors
+    )
+
 #most viewed videos
 fig = px.bar(highest, x='viewCount', y='title',color=highest.index,text_auto='.2s')
 #fig.update_traces(textinfo='value')
 fig.update_layout(yaxis={'categoryorder':'total ascending'})
 fig.update_coloraxes(showscale=False)
-fig_config('<b>Top 10 most viewed videos</b>',16,14,'#000000',"<b>View Count</b>",'<b>Videos</b>')
+fig_config('<b>Top 10 most viewed videos</b>',16,16,"<b>View Count</b>",'<b>Videos</b>')
 st.plotly_chart(fig,use_container_width=True)
 
 "____"
@@ -117,7 +156,7 @@ liked = load_from_blob('liked10.pkl')
 fig = px.bar(liked, x='likeCount', y='title',color=liked.index,text_auto='.2s')
 fig.update_layout(yaxis={'categoryorder':'total ascending'})
 fig.update_coloraxes(showscale=False)
-fig_config('<b>Top 10 most liked videos</b>',16,14,'#000000',"<b>Count</b>",'<b>Video Title</b>')
+fig_config('<b>Top 10 most liked videos</b>',16,16,"<b>Like Count</b>",'<b>Video Title</b>')
 st.plotly_chart(fig,use_container_width=True)
 "____"
 
@@ -126,7 +165,7 @@ cert = load_from_blob('cert10.pkl')
 fig = px.bar(cert, x='viewCount', y='title',color=cert.index,text_auto='.2s')
 fig.update_layout(yaxis={'categoryorder':'total ascending'})
 fig.update_coloraxes(showscale=False)
-fig_config('<b>Top 10 most popular certifications</b>',16,14,'#000000',"<b>View Count</b>",'<b>Video Title</b>')
+fig_config('<b>Top 10 most popular certifications</b>',16,16,"<b>View Count</b>",'<b>Video Title</b>')
 st.plotly_chart(fig,use_container_width=True)
 
 "____"
@@ -136,7 +175,7 @@ day = load_from_blob('day.pkl')
 fig = px.bar(day, y='publishedDayName',color=day.index,text_auto='.2ss')
 fig.update_coloraxes(showscale=False)
 fig.update_layout(showlegend=False)
-fig_config('<b>Day with most videos uploaded</b>',16,14,'#000000',"<b>Day of the Week</b>",'<b>No.of Videos</b>')
+fig_config('<b>Day with most videos uploaded</b>',16,16,"<b>Day of the Week</b>",'<b>No.of Videos</b>')
 st.plotly_chart(fig,use_container_width=True)
 
 "____"
@@ -144,7 +183,7 @@ st.plotly_chart(fig,use_container_width=True)
 count =  load_from_blob('countvideos.pkl')
 fig =px.pie(count, values=count.values, names=count.index, title ='Technology categories that have more than one video posted', width=800, height=800)
 fig.update_traces(textinfo='value')
-fig_config('<b>Technologies  that have more than one video posted</b>',18,14,'#000000','<b>Technology categories that have more than one video posted</b>','<b>Technology categories that have more than one video posted</b>')
+fig_config_pie('<b>Technologies  that have more than one video posted</b>',18,18,dict(colors=px.colors.qualitative.Plotly))
 st.plotly_chart(fig,use_container_width=True)
 
 "____"
