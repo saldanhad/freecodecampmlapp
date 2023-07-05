@@ -26,7 +26,7 @@ def save_to_blob(data, blob_name):
     serialized_data = pickle.dumps(data)
     blob_client = blob_service_client.get_blob_client(container_name, blob_name)
     blob_client.upload_blob(serialized_data, overwrite=True)
-
+@st.cache
 def load_from_blob(blob_name):
     blob_client = blob_service_client.get_blob_client(container_name, blob_name)
     serialized_data = blob_client.download_blob().readall()
@@ -43,7 +43,7 @@ image = Image.open("logo.jpg")
 st.image(image)
 
 
-#load data from blob storage
+#load data that is updated via the daily run on databricks
 highest = load_from_blob('top10.pkl')
 dfcurr = load_from_blob('video_df.pkl')
 totsubs = load_from_blob('totsubs.pkl')

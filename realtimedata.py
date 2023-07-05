@@ -20,23 +20,44 @@ from sklearn.feature_extraction.text import TfidfVectorizer
 from sklearn.metrics.pairwise import cosine_similarity
 from dateutil import parser
 
+from azure.storage.blob import BlobServiceClient, BlobClient, ContainerClient
+
+
+#connection details from Azure where the pickle files are stored and updated.
+connection_string = os.getenv('AZURE_CONNECTION_STRING')
+container_name = os.getenv('AZURE_CONTAINER_NAME')
+
+blob_service_client = BlobServiceClient.from_connection_string(connection_string)
+
 #light version of sentence_transformers
 from sentence_transformers import SentenceTransformer
 model_name = 'sentence-transformers/paraphrase-TinyBERT-L6-v2'
 model = SentenceTransformer(model_name)
 
 
+blob_service_client = BlobServiceClient.from_connection_string(connection_string)
 
-load_dotenv(".env")
-API_KEY = os.getenv("API_KEY")
-from pathlib import Path
-root = Path(".")
-my_path = root/'pickle files'
+def save_to_blob(data, blob_name):
+    serialized_data = pickle.dumps(data)
+    blob_client = blob_service_client.get_blob_client(container_name, blob_name)
+    blob_client.upload_blob(serialized_data, overwrite=True) ##overwrite
 
-dfold = pickle.load(open(my_path/'video_df.pkl','rb'))
-subsold = pickle.load(open(my_path/'subsold.pkl','rb'))
+def load_from_blob(blob_name):
+    blob_client = blob_service_client.get_blob_client(container_name, blob_name)
+    serialized_data = blob_client.download_blob().readall()
+    data = pickle.loads(serialized_data)
+    return data
 
-@st.cache(allow_output_mutation=True)
+
+#google api client
+
+API_KEY = os.getenv('YOUTUBE_API_KEY')
+
+#load data from previous run, stored in blob storage
+dfold = load_from_blob('video_df.pkl')
+subsold = load_from_blob('subsold.pkl')
+
+
 def api_call():
 
     import pickle
@@ -155,14 +176,12 @@ def api_call():
     else:
         diffsubs = subsnew['subscribers'].sum() - subsold['subscribers'].sum()
         diffsubs = diffsubs.astype(float)
-        with open(my_path/'diffsubs.pkl','wb') as f:
-            pickle.dump(diffsubs,f)
-        with open(my_path/'subsold.pkl','wb') as f:
-            pickle.dump(subsnew,f)
+        save_to_blob(diffsubs, 'diffsubs.pkl')
+        save_to_blob(subsold,'subsold.pkl')
 
     totsubs = channel_stats.subscribers
-    with open(my_path/'totsubs.pkl','wb') as f:
-        pickle.dump(totsubs,f)
+    save_to_blob(totsubs,'totsubs.pkl')
+    
 
     #video_df handle datatypes and create published day name
     video_df = get_video_details(youtube, video_ids)
@@ -182,27 +201,22 @@ def api_call():
 def update_recommendations():
     dfcurr = api_call()
     video_df = dfcurr.copy()
-    import pickle
+    dfold = load_from_blob('video_df.pkl') # load last saved data from API
     if dfold.shape[0] != dfcurr.shape[0]:
         
         #generate clean_title & clean_description for incoming data
-        diff = dfcurr.shape[0] - dfold.shape[0]
-        with open(my_path/'diff.pkl','wb') as f:
-            pickle.dump(diff,f)
+        diff = dfcurr.shape[0] - dfold.shape[0] 
+        save_to_blob(diff, 'diff.pkl')
         
-        with open(my_path/'dfold.pkl','wb') as f:
-            pickle.dump(dfcurr,f)
+        save_to_blob(dfcurr, 'dfold.pkl') #save latest data pulled from the API to dfcurr
         
         diflikes = dfcurr.likeCount.sum() - dfold.likeCount.sum()
         difcomment = dfcurr.commentCount.sum() - dfold.commentCount.sum()
         difview = dfcurr.viewCount.sum() - dfold.viewCount.sum()
 
-        with open(my_path/'diflikes.pkl','wb') as f:
-            pickle.dump(diflikes,f)
-        with open(my_path/'difcomment.pkl', 'wb') as f:
-            pickle.dump(difcomment,f)
-        with open(my_path/'difview.pkl','wb') as f:
-            pickle.dump(difview,f)
+        save_to_blob(diflikes,'diflikes.pkl')
+        save_to_blob(difview,'difview.pkl')
+        
 
         VERB_CODES = {'VB','VBD','VBG','VBN','VBP','VBZ'}
         stop_words = set(stopwords.words('english'))
@@ -230,15 +244,14 @@ def update_recommendations():
         #top10 viewcount
         top10 = video_df[['title','video_id','viewCount']]
         top10 = top10.sort_values(by='viewCount',ascending=False).head(10)
-        with open(my_path/'top10.pkl','wb') as f:
-            pickle.dump(top10,f)
+        save_to_blob(top10,'top10.pkl')
+        
 
 
         #top10 mostliked
         liked10 = video_df[['title','video_id','likeCount']]
         liked10 = liked10.sort_values(by='likeCount',ascending=False).head(20)
-        with open(my_path/'like10.pkl','wb') as f:
-            pickle.dump(liked10,f)
+        save_to_blob(liked10,'like10.pkl')
  
 
         #update keyword search
@@ -247,33 +260,30 @@ def update_recommendations():
         video_df['key3']=video_df['clean_title'].str.split().str[2]
         keywords= video_df[['title','url','key1','key2','key3']]
 
-        with open(my_path/'keyword.pkl', 'wb') as f:
-            pickle.dump(keywords,f)
+        save_to_blob(keywords,'keyword.pkl')
+
 
         #most viewed certification courses
         cloud = video_df.loc[(video_df[['key1','key2','key3']].isin(['aws','certification','associate','practitioner','azure','google'])).any(axis=1)]
-        c = cloud.sort_values(by='viewCount',ascending=False).head(10)
-        with open(my_path/'cert10.pkl','wb') as f:
-            pickle.dump(c,f)
+        cert10 = cloud.sort_values(by='viewCount',ascending=False).head(10)
+        save_to_blob(cert10,'cert10.pkl')
+
 
         #wordcloud
         all_words = list([a for b in video_df['title'].to_list() for a in b])
         all_words_str = ''.join(all_words)
-        with open(my_path/'wordcloud.pkl','wb') as f:
-            pickle.dump(all_words_str,f)
+        save_to_blob(all_words_str,'wordcloud.pkl')
 
         #publishedDayName
         day = pd.DataFrame(video_df['publishedDayName'].value_counts())
         weekdays =['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday']
-        with open(my_path/'day.pkl','wb') as f:
-            pickle.dump(day,f)
+        save_to_blob(day,'day.pkl')
 
         #videocounts of repeated topics
         video_df['clean_title'].value_counts()
         count = video_df['clean_title'].value_counts()
         count = count.loc[count > 1]
-        with open(my_path/'countvideos.pkl','wb') as f:
-            pickle.dump(count,f)
+        save_to_blob(count, 'countvideos.pkl')
 
         #Update pickle files for Troy (BERT model)
         list_df = video_df['title'].tolist()
@@ -284,18 +294,11 @@ def update_recommendations():
         indices = pd.Series(video_df.index, index=video_df['title'])
         videos = video_df['title']
 
-        import pickle
-        with open(my_path/'sim.pkl','wb') as f:
-            pickle.dump(similarity,f)
+        save_to_blob(similarity,'sim.pkl')
+        save_to_blob(indices,'indices.pkl')
+        save_to_blob(videos,'videos.pkl')
+        save_to_blob(video_df,'video_df.pkl')
 
-        with open(my_path/'indices.pkl','wb') as f:
-            pickle.dump(indices,f)
-
-        with open(my_path/'videos.pkl','wb') as f:
-            pickle.dump(videos,f)
-
-        with open(my_path/'video_df.pkl','wb') as f:
-            pickle.dump(video_df,f)
 
         #update pickle files for Sparta
         tfv2 = TfidfVectorizer(min_df=2, max_features=None,strip_accents='unicode', analyzer='word', token_pattern=r'\w{1,}', ngram_range=(1,3),stop_words='english')
@@ -305,14 +308,14 @@ def update_recommendations():
 
         indices2 = pd.Series(video_df.index, index=video_df['title']).drop_duplicates()
 
-        with open(my_path/'sim2.pkl','wb') as f:
-            pickle.dump(similarity2,f)
-
-        with open(my_path/'indices2.pkl','wb') as f:
-            pickle.dump(indices2,f)
+        
+        save_to_blob(similarity2,'sim2.pkl')
+        save_to_blob(indices2, 'indices2.pkl')
 
 
-
-if __name__ == '__main__':
-    api_call()
-    update_recommendations()
+'''''
+run function update_recommendations()
+The following set of code is run via a Databricks environment that runs daily at 12pm EST and updates
+the pickle files stored in azure blob storage
+'''''
+update_recommendations()
