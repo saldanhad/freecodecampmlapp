@@ -79,7 +79,8 @@ with cache.container():
     col4.metric(label="Total Likes", value=human_format(dfcurr.likeCount.sum()), delta =(difflike))
     col5.metric(label="Total Comments", value =human_format(dfcurr.commentCount.sum()), delta =(diffcomment))
 
-                
+st.write("Latest Video:", dfcurr.title[0])
+
 "____"
 def fig_config(title, size, size2, xtitle, ytitle):
     fig.update_layout(
