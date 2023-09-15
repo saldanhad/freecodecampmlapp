@@ -3,9 +3,8 @@ name: Automatic Deployment to Staging
 # Trigger the workflow when code is pushed to the development or staging branch.
 on:
   push:
-    branches:
-      - Dev
-      - Staging
+    branches: [master]
+    paths-ignore: README.md
 
 jobs:
   deploy_to_staging:
