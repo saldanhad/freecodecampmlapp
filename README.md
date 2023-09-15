@@ -4,6 +4,12 @@
 # Product Canvas
 ![Image Description](https://github.com/saldanhad/freecodecampmlapp/blob/master/Product%20Canvas%20Template.jpg)
 
+
+# Application Architecture Diagram
+
+![Image Description](https://github.com/saldanhad/freecodecampmlapp/blob/master/AppDiagram.drawio.png)
+
+
 # Steps to run the files locally
 
 * Clone the repository by running the following command:
