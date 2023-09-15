@@ -1,27 +1,33 @@
-#workflow
-name: Deploy to Heroku
+name: Automatic Deployment to Staging
 
-# Run workflow on every push to main branch.
+# Trigger the workflow when code is pushed to the development or staging branch.
 on:
   push:
-    branches: [master]
-    paths-ignore: README.md
+    branches:
+      - Dev
+      - Staging
 
-# Your workflows jobs.
 jobs:
-   build:
-     runs-on: ubuntu-latest
-     environment: production
-     steps:
-          - name: Checkout
-            uses: actions/checkout@v2
-          - name: Build, Push and Release a Docker container to Heroku.
-            uses: gonuit/heroku-docker-deploy@v1.3.3
-            with:
-              email: ${{ secrets.HEROKU_EMAIL }}
-              heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
-              heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
-              dockerfile_directory: ./
-              dockerfile_name: heroku_build/Dockerfile
-              docker_options: "--no-cache"
-              process_type: web
+  deploy_to_staging:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+
+      - name: Display Message for Dev
+        if: github.ref == 'refs/heads/Dev'
+        run: echo "Code changes committed to dev."
+
+      - name: Deploy to Staging
+        if: github.ref == 'refs/heads/Staging'
+        uses: gonuit/heroku-docker-deploy@v1.3.3
+        with:
+          email: ${{ secrets.HEROKU_EMAIL }}
+          heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+          heroku_app_name: ${{ secrets.HEROKU_APP_NAME_STAGING }}
+          dockerfile_directory: ./
+          dockerfile_name: heroku_build/Dockerfile
+          docker_options: "--no-cache"
+          process_type: web
+
