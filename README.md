@@ -8,13 +8,17 @@ By offering a mechanism to collect user feedback for the Troy and Sparta recomme
 
 * demo on Heroku: https://freecodecampwebapp.herokuapp.com/
 
+# Application Tutorial:
+
+![Image Description](https://github.com/saldanhad/freecodecampmlapp/blob/master/miscellaneous/app_tutorial.gif?raw=true)
+
 # Product Canvas
-![Image Description](https://github.com/saldanhad/freecodecampmlapp/blob/master/Product%20Canvas%20Template.jpg)
+![Image Description](https://github.com/saldanhad/freecodecampmlapp/blob/master/miscellaneous/Product%20Canvas%20Template.jpg?raw=true)
 
 
 # Application Architecture Diagram
 
-![Image Description](https://github.com/saldanhad/freecodecampmlapp/blob/master/AppDiagram.drawio.png)
+![Image Description](https://github.com/saldanhad/freecodecampmlapp/blob/master/miscellaneous/AppDiagram.drawio.png.png?raw=true)
 
 
 # Steps to run the files locally
@@ -33,7 +37,7 @@ git clone https://github.com/saldanhad/freecodecampmlapp
 # Database via Elephant SQL
 * Create tables to track feedback for each of the models, table names - feedback_trackertroy, feedback_trackersparta
   
-![Image Description](https://github.com/saldanhad/freecodecampmlapp/blob/master/elephantsqlss.jpg)
+![Image Description](https://github.com/saldanhad/freecodecampmlapp/blob/master/miscellaneous/elephantsqlss.jpg?raw=true)
 
 # Framework to run A/B Test to compare Troy vs Sparta recommenders using Frequentist and Bayesian Approach.
 * The North Star Metric used is # of users that provide a rating of 4 or greater out of total 5 star ratings. For each of the recommenders the ratings are being tabulated via the feedback section in the recommender pages and stored in a Postgresql DB for A/B test use. 
@@ -41,10 +45,10 @@ git clone https://github.com/saldanhad/freecodecampmlapp
 * Using the Frequentist Approach and Power Analysis we are able to commute that the minimum sample size required to perform an A/B test is 4800 samples for both control (Sparta model) and treatement group (Troy Model):
 
 Please refer to power analysis plot below:
+![Image Description](https://github.com/saldanhad/freecodecampmlapp/blob/master/miscellaneous/poweranalysisplot.jpg?raw=true)
 
 
-
-* Also propose a framework to use Bayesian testing using Monte Carlo Simulation to generate random posterior probabilities. 
+* Also proposed a framework to use Bayesian testing using Monte Carlo Simulation to generate random posterior probabilities. 
 
 For detailed analysis please refer to the attached 
 A_B_Test_Compare_Recommender_Systems.ipynb file.
