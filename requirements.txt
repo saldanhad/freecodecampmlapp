@@ -13,7 +13,5 @@ streamlit-option-menu==0.3.2
 wordcloud==1.8.2.2
 matplotlib==3.6.2
 gunicorn==20.1.0
-nltk==3.7
-transformers==4.25.1
 psycopg2==2.9.3
 azure-storage-blob==12.16.0 
