@@ -4,7 +4,9 @@ name: Deploy to Heroku
 on:
   push:
     branches: [master]
-    paths-ignore: README.md
+    paths-ignore: 
+      - README.md
+      - .dockerignore
 
 # Your workflows jobs.
 jobs:

@@ -1,6 +1,8 @@
 
-heroku_build
-*.github
+miscellaneous/
+*.github/
 *.md
 *.pickle files
-*.realtimedata.py
+realtimedata.py
+A_B_Test_Compare_Recommender_Systems.ipynb
+
