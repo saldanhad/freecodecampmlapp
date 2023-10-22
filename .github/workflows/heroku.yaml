@@ -1,4 +1,3 @@
-#workflow
 name: Deploy to Heroku
 
 # Run workflow on every push to main branch.
@@ -9,9 +8,9 @@ on:
 
 # Your workflows jobs.
 jobs:
-   build:
+   Dev:
      runs-on: ubuntu-latest
-     environment: production
+     environment: Dev
      steps:
           - name: Checkout
             uses: actions/checkout@v2
@@ -25,3 +24,37 @@ jobs:
               dockerfile_name: heroku_build/Dockerfile
               docker_options: "--no-cache"
               process_type: web
+
+   Stage:
+     runs-on: ubuntu-latest
+     environment: Stage
+     steps: 
+          - name: Checkout
+            uses: actions/checkout@v2
+          - name: Build, Push and Release a Docker container to Heroku.
+            uses: gonuit/heroku-docker-deploy@v1.3.3
+            with:
+              email: ${{ secrets.HEROKU_EMAIL }}
+              heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+              heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
+              dockerfile_directory: ./
+              dockerfile_name: heroku_build/Dockerfile
+              docker_options: "--no-cache"
+              process_type: web     
+  
+   Prod:
+     runs-on: ubuntu-latest
+     environment: Prod
+     steps: 
+          - name: Checkout
+            uses: actions/checkout@v2
+          - name: Build, Push and Release a Docker container to Heroku.
+            uses: gonuit/heroku-docker-deploy@v1.3.3
+            with:
+              email: ${{ secrets.HEROKU_EMAIL }}
+              heroku_api_key: ${{ secrets.HEROKU_API_KEY }}
+              heroku_app_name: ${{ secrets.HEROKU_APP_NAME }}
+              dockerfile_directory: ./
+              dockerfile_name: heroku_build/Dockerfile
+              docker_options: "--no-cache"
+              process_type: web   
