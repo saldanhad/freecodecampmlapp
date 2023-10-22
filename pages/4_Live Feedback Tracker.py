@@ -54,6 +54,10 @@ st.plotly_chart(figtroy)
 acc_troy = accuracy("feedback_trackertroy")
 st.markdown(f"<h3 style='font-size: 24px;'>Accuracy= {acc_troy}</h3>", unsafe_allow_html=True)
 
+"---"
+
+st.markdown("**___Sparta System___**")
+
 #performance for sparta model
 figsparta = feedback("feedback_trackersparta")
 st.plotly_chart(figsparta)

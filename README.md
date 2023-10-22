@@ -1,4 +1,11 @@
-# freecodecamp
+# Introduction:
+
+I designed and deployed a machine learning web application that uses data from the FreeCodeCamp YouTube channel to compare the popularity of videos related to emerging technologies. The application includes two content-based recommender systems: Troy, which is based on BERT, and Sparta, which is a hybrid model using TFIDF and user likes for the corresponding videos. These recommender systems suggest similar videos to users based on their selection of technology-related content.
+
+The application is hosted on Heroku server using Docker, and I've set up a CI/CD pipeline with Git and GitHub Actions for efficient management.
+
+By offering a mechanism to collect user feedback for the Troy and Sparta recommender systems via the Live Feedback tracker, we can leverage this data to conduct A/B testing using both Frequentist and Bayesian testing approaches. A detailed analysis is provided in the attached Jupyter notebook.
+
 * demo on Heroku: https://freecodecampwebapp.herokuapp.com/
 
 # Product Canvas
@@ -27,6 +34,21 @@ git clone https://github.com/saldanhad/freecodecampmlapp
 * Create tables to track feedback for each of the models, table names - feedback_trackertroy, feedback_trackersparta
   
 ![Image Description](https://github.com/saldanhad/freecodecampmlapp/blob/master/elephantsqlss.jpg)
+
+# Framework to run A/B Test to compare Troy vs Sparta recommenders using Frequentist and Bayesian Approach.
+* The North Star Metric used is # of users that provide a rating of 4 or greater out of total 5 star ratings. For each of the recommenders the ratings are being tabulated via the feedback section in the recommender pages and stored in a Postgresql DB for A/B test use. 
+
+* Using the Frequentist Approach and Power Analysis we are able to commute that the minimum sample size required to perform an A/B test is 4800 samples for both control (Sparta model) and treatement group (Troy Model):
+
+Please refer to power analysis plot below:
+
+
+
+* Also propose a framework to use Bayesian testing using Monte Carlo Simulation to generate random posterior probabilities. 
+
+For detailed analysis please refer to the attached 
+A_B_Test_Compare_Recommender_Systems.ipynb file.
+
 
 ### References & Citations
 
